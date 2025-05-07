@@ -14,24 +14,24 @@ public class ConnectionClass {
 
         try {
             con = DriverManager.getConnection(url, user, password);
-            System.out.println("✅ Connected to SQL Server successfully!");
+            System.out.println("Connected to SQL Server successfully!");
         } catch (SQLException e) {
-            System.out.println("❌ Connection failed.");
+            System.out.println("Connection failed.");
             e.printStackTrace();
         }
     }
 
-    public static Connection getConnection() {
-        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-        String user = "sa";
-        String password = "dblab";
-
-        try {
-            Connection con = DriverManager.getConnection(url, user, password);
-            return con;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+//    public static Connection getConnection() {
+//        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
+//        String user = "sa";
+//        String password = "dblab";
+//
+//        try {
+//            Connection con = DriverManager.getConnection(url, user, password);
+//            return con;
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
 }

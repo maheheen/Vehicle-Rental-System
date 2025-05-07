@@ -11,10 +11,10 @@ public class TestConnection {
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             Connection con = DriverManager.getConnection(url, user, password);
-            System.out.println("✅ Connected to SQL Server successfully!");
+            System.out.println("Connected to SQL Server successfully!");
             con.close();
         } catch (Exception e) {
-            System.out.println("❌ Connection failed.");
+            System.out.println("Connection failed.");
             e.printStackTrace();
         }
     }
