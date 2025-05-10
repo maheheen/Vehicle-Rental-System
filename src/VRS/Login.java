@@ -8,14 +8,14 @@ public class Login extends JFrame implements ActionListener {
     JLabel titleLabel, usernameLabel, passwordLabel, iconLabel;
     JTextField usernameField;
     JPasswordField passwordField;
-    JButton loginButton, cancelButton;
-    JPanel formPanel, titlePanel, iconPanel;
+    JButton loginButton, cancelButton, registerButton;
+    JPanel formPanel, loginPanel, cancelPanel, registerPanel, titlePanel, iconPanel;
     Font titleFont, labelFont;
 
     public Login() {
         super("Vehicle Rental System - Login");
-        setSize(600, 300);
-        setLocationRelativeTo(null); // Center on screen
+        setSize(600, 400);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Fonts
@@ -34,8 +34,8 @@ public class Login extends JFrame implements ActionListener {
         passwordLabel.setFont(labelFont);
 
         // Text fields
-        usernameField = new JTextField();
-        passwordField = new JPasswordField();
+        usernameField = new JTextField(20);
+        passwordField = new JPasswordField(20);
         usernameField.setFont(labelFont);
         passwordField.setFont(labelFont);
         usernameField.setMargin(new Insets(5, 10, 5, 10));
@@ -44,12 +44,15 @@ public class Login extends JFrame implements ActionListener {
         // Buttons
         loginButton = new JButton("Login");
         cancelButton = new JButton("Cancel");
+        registerButton = new JButton("Register");
         loginButton.setFont(labelFont);
         cancelButton.setFont(labelFont);
+        registerButton.setFont(labelFont);
         loginButton.addActionListener(this);
         cancelButton.addActionListener(this);
+        registerButton.addActionListener(this);
 
-        // Icon (if available)
+
         ImageIcon icon = new ImageIcon(ClassLoader.getSystemResource("Images/car-icon.png"));
         Image scaledIcon = icon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH);
         iconLabel = new JLabel(new ImageIcon(scaledIcon));
@@ -57,33 +60,45 @@ public class Login extends JFrame implements ActionListener {
         iconPanel = new JPanel(new BorderLayout());
         iconPanel.add(iconLabel, BorderLayout.CENTER);
 
-        // Form layout
-        formPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+
+        formPanel = new JPanel(new GridLayout(4, 2, 10, 20)); // 4 rows, 2 columns for labels & fields
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+
+
         formPanel.add(usernameLabel);
         formPanel.add(usernameField);
+
         formPanel.add(passwordLabel);
         formPanel.add(passwordField);
-        formPanel.add(loginButton);
-        formPanel.add(cancelButton);
 
-        // Title panel
+
         titlePanel = new JPanel(new BorderLayout());
         titlePanel.add(titleLabel, BorderLayout.CENTER);
 
-        // Final layout
+        loginPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 2, 3)); // Center-aligning the button
+        loginPanel.add(loginButton);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.add(loginButton);
+        buttonPanel.add(cancelButton);
+        buttonPanel.add(registerButton);
+
         setLayout(new BorderLayout(10, 10));
         add(titlePanel, BorderLayout.NORTH);
         add(iconPanel, BorderLayout.EAST);
         add(formPanel, BorderLayout.CENTER);
+        add(loginPanel, BorderLayout.SOUTH);
+        add(buttonPanel, BorderLayout.SOUTH);
     }
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
             JOptionPane.showMessageDialog(this, "Login button clicked!");
-            // You can add navigation logic here later
+
         } else if (e.getSource() == cancelButton) {
-            this.dispose(); // Close the window
+            this.dispose();
+        } else if (e.getSource() == registerButton) {
+            new Registration().setVisible(true);
         }
     }
 
