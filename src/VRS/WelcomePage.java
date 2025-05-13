@@ -32,24 +32,22 @@ public class WelcomePage extends JFrame {
         signupButton.setFont(buttonFont);
         signupButton.setPreferredSize(new Dimension(120, 40));
 
-        // ActionListener for Sign Up Button
         signupButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 new Signup().setVisible(true);
-                setVisible(false); // Hide Welcome Page
+                setVisible(false);
             }
         });
 
-        // Create Login button
         loginButton = new JButton("Login");
         loginButton.setFont(buttonFont);
         loginButton.setPreferredSize(new Dimension(120, 40));
 
-        // ActionListener for Login Button
+
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new Login().setVisible(true); // Open Login window
-                setVisible(false); // Hide Welcome Page
+                new Login().setVisible(true);
+                setVisible(false);
             }
         });
 
@@ -59,13 +57,12 @@ public class WelcomePage extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridx = 0;
 
-        gbc.gridy = 0; // First row - Sign Up
+        gbc.gridy = 0;
         buttonPanel.add(signupButton, gbc);
 
-        gbc.gridy = 1; // Second row - Login
+        gbc.gridy = 1;
         buttonPanel.add(loginButton, gbc);
 
-        // Main panel with layout
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints mainGbc = new GridBagConstraints();
         mainGbc.insets = new Insets(10, 20, 10, 20);

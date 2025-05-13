@@ -6,16 +6,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Signup extends JFrame implements ActionListener {
-    JLabel l1, l2, l3;
+    JLabel l1, l2, l3, l4;
     JTextField usernameField;
     JPasswordField passwordField;
     JButton backButton, signUpButton;
+    JRadioButton adminRadio, customerRadio;
     Font f1, f2;
 
     public Signup() {
         super("Sign Up - Rentify");
         setLocation(400, 300);
-        setSize(530, 300);
+        setSize(530, 350); // Increased height for radio buttons
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         f1 = new Font("Arial", Font.BOLD, 25);
@@ -24,11 +25,13 @@ public class Signup extends JFrame implements ActionListener {
         l1 = new JLabel("Create Your Account");
         l2 = new JLabel("Username:");
         l3 = new JLabel("Password:");
+        l4 = new JLabel("Select Role:");
 
         l1.setHorizontalAlignment(JLabel.CENTER);
         l1.setFont(f1);
         l2.setFont(f2);
         l3.setFont(f2);
+        l4.setFont(f2);
 
         usernameField = new JTextField(15);
         passwordField = new JPasswordField(15);
@@ -45,11 +48,31 @@ public class Signup extends JFrame implements ActionListener {
         backButton.addActionListener(this);
         signUpButton.addActionListener(this);
 
-        // Panel with GridBagLayout for padding and alignment
+        // Role radio buttons
+        adminRadio = new JRadioButton("Admin");
+        customerRadio = new JRadioButton("Customer");
+
+        adminRadio.setFont(f2);
+        customerRadio.setFont(f2);
+
+        adminRadio.setEnabled(false); // Admin disabled
+        customerRadio.setSelected(true); // Customer selected by default
+
+        ButtonGroup roleGroup = new ButtonGroup();
+        roleGroup.add(adminRadio);
+        roleGroup.add(customerRadio);
+
+        JPanel rolePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        rolePanel.add(l4);
+        rolePanel.add(adminRadio);
+        rolePanel.add(customerRadio);
+
         JPanel formPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 15, 10, 15); // Padding around each component
         gbc.fill = GridBagConstraints.HORIZONTAL;
+
+// Username Label & Field
         gbc.gridx = 0;
         gbc.gridy = 0;
         formPanel.add(l2, gbc);
@@ -57,6 +80,7 @@ public class Signup extends JFrame implements ActionListener {
         gbc.gridx = 1;
         formPanel.add(usernameField, gbc);
 
+// Password Label & Field
         gbc.gridx = 0;
         gbc.gridy = 1;
         formPanel.add(l3, gbc);
@@ -64,12 +88,29 @@ public class Signup extends JFrame implements ActionListener {
         gbc.gridx = 1;
         formPanel.add(passwordField, gbc);
 
+// select role label
         gbc.gridx = 0;
         gbc.gridy = 2;
+        formPanel.add(l4, gbc);
+
+// Radio buttons
+        JPanel radioPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        radioPanel.add(adminRadio);
+        radioPanel.add(customerRadio);
+
+        gbc.gridx = 1;
+        formPanel.add(radioPanel, gbc);
+
+// Buttons
+        gbc.gridx = 0;
+        gbc.gridy = 3;
         formPanel.add(backButton, gbc);
 
         gbc.gridx = 1;
         formPanel.add(signUpButton, gbc);
+
+// add formPanel to main layout
+        add(formPanel, BorderLayout.CENTER);
 
         setLayout(new BorderLayout(20, 20));
         add(l1, BorderLayout.NORTH);
@@ -80,12 +121,12 @@ public class Signup extends JFrame implements ActionListener {
         if (e.getSource() == signUpButton) {
             String username = usernameField.getText();
             String password = new String(passwordField.getPassword());
+            String role = customerRadio.isSelected() ? "Customer" : "Admin"; //admin won't be selectable now
 
             try {
                 ConnectionClass obj = new ConnectionClass();
-                // Uncomment below lines when ready to implement DB logic
-                // String hashedPassword = PasswordHasher.hashPassword(password);
-                // String query = "INSERT INTO login (username, password) VALUES ('" + username + "', '" + hashedPassword + "')";
+                // Example role-based insert:
+                // String query = "INSERT INTO login (username, password, role) VALUES ('" + username + "', '" + password + "', '" + role + "')";
                 // obj.stm.executeUpdate(query);
                 // JOptionPane.showMessageDialog(null, "Account Created Successfully!");
                 // this.setVisible(false);
