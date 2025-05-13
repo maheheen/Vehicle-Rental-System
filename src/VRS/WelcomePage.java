@@ -7,7 +7,7 @@ import javax.swing.*;
 public class WelcomePage extends JFrame {
 
     JLabel titleLabel, imageLabel;
-    JButton loginButton;
+    JButton loginButton, signupButton;
     Font titleFont, buttonFont;
 
     public WelcomePage() {
@@ -27,11 +27,25 @@ public class WelcomePage extends JFrame {
         Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
         imageLabel = new JLabel(new ImageIcon(img));
 
+        // Create Sign Up button
+        signupButton = new JButton("Sign Up");
+        signupButton.setFont(buttonFont);
+        signupButton.setPreferredSize(new Dimension(120, 40));
+
+        // ActionListener for Sign Up Button
+        signupButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                new Signup().setVisible(true);
+                setVisible(false); // Hide Welcome Page
+            }
+        });
+
+        // Create Login button
         loginButton = new JButton("Login");
         loginButton.setFont(buttonFont);
         loginButton.setPreferredSize(new Dimension(120, 40));
 
-        //ActionListener for Login Button
+        // ActionListener for Login Button
         loginButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 new Login().setVisible(true); // Open Login window
@@ -39,13 +53,19 @@ public class WelcomePage extends JFrame {
             }
         });
 
+        // Panel for buttons - stacked vertically
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.gridx = 0;
-        gbc.gridy = 0;
+
+        gbc.gridy = 0; // First row - Sign Up
+        buttonPanel.add(signupButton, gbc);
+
+        gbc.gridy = 1; // Second row - Login
         buttonPanel.add(loginButton, gbc);
 
+        // Main panel with layout
         JPanel mainPanel = new JPanel(new GridBagLayout());
         GridBagConstraints mainGbc = new GridBagConstraints();
         mainGbc.insets = new Insets(10, 20, 10, 20);
