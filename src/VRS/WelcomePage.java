@@ -19,7 +19,7 @@ public class WelcomePage extends JFrame {
         titleFont = new Font("Arial", Font.BOLD, 25);
         buttonFont = new Font("Arial", Font.PLAIN, 18);
 
-        titleLabel = new JLabel("Welcome to Vehicle Rental System!");
+        titleLabel = new JLabel("Welcome to Rentify!");
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
         titleLabel.setFont(titleFont);
 
@@ -27,14 +27,13 @@ public class WelcomePage extends JFrame {
         Image img = icon.getImage().getScaledInstance(200, 150, Image.SCALE_SMOOTH);
         imageLabel = new JLabel(new ImageIcon(img));
 
-        // Create Sign Up button
-        signupButton = new JButton("Sign Up");
+        signupButton = new JButton("Register");
         signupButton.setFont(buttonFont);
         signupButton.setPreferredSize(new Dimension(120, 40));
 
         signupButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                new Signup().setVisible(true);
+                new Registration().setVisible(true);
                 setVisible(false);
             }
         });
