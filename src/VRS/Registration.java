@@ -7,8 +7,8 @@ import java.io.*;
 import java.sql.*;
 
 public class Registration extends JFrame implements ActionListener {
-    JLabel titleLabel, firstNameLabel, lastNameLabel, phoneNumberLabel, emailLabel, drivingLicenseLabel, NationalIDLabel, uploadImageLabel, passwordLabel, RetypePasswordLabel, addressLabel;
-    JTextField firstNameField, lastNameField, phoneNumberField, EmailField, CNICField, drivingLicenseField, addressField;
+    JLabel titleLabel, firstNameLabel, lastNameLabel, phoneNumberLabel, emailLabel, drivingLicenseLabel, NationalIDLabel, uploadImageLabel, passwordLabel, RetypePasswordLabel, addressLabel,usernameLabel;
+    JTextField firstNameField, lastNameField, phoneNumberField, EmailField, CNICField, drivingLicenseField, addressField, usernameField;
     JPasswordField passwordField1, passwordField2;
     JButton uploadImage, doneButton;
     Font titleFont, labelFont;
@@ -19,12 +19,8 @@ public class Registration extends JFrame implements ActionListener {
         setSize(600, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-
         titleFont = new Font("Sanserif", Font.BOLD, 26);
         labelFont = new Font("SansSerif", Font.PLAIN, 18);
-
-
         titleLabel = new JLabel("Registration Form", JLabel.CENTER);
         titleLabel.setFont(titleFont);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -37,6 +33,7 @@ public class Registration extends JFrame implements ActionListener {
         NationalIDLabel = new JLabel("CNIC Number");
         drivingLicenseLabel = new JLabel("Driving License Number");
         addressLabel = new JLabel("Home Address");
+        usernameLabel = new JLabel("Username");
         passwordLabel = new JLabel("Password");
         RetypePasswordLabel = new JLabel("Retype Password");
         uploadImageLabel = new JLabel("Upload CNIC Image");
@@ -47,6 +44,7 @@ public class Registration extends JFrame implements ActionListener {
         phoneNumberLabel.setFont(labelFont);
         emailLabel.setFont(labelFont);
         NationalIDLabel.setFont(labelFont);
+        usernameLabel.setFont(labelFont);
         passwordLabel.setFont(labelFont);
         RetypePasswordLabel.setFont(labelFont);
         uploadImageLabel.setFont(labelFont);
@@ -61,6 +59,7 @@ public class Registration extends JFrame implements ActionListener {
         CNICField = new JTextField(20);
         drivingLicenseField = new JTextField(20);
         addressField = new JTextField(20);
+        usernameField = new JTextField(20);
         passwordField1 = new JPasswordField(20);
         passwordField2 = new JPasswordField(20);
 
@@ -71,6 +70,7 @@ public class Registration extends JFrame implements ActionListener {
         phoneNumberField.setFont(labelFont);
         EmailField.setFont(labelFont);
         CNICField.setFont(labelFont);
+        usernameField.setFont(labelFont);
         passwordField1.setFont(labelFont);
         passwordField2.setFont(labelFont);
         drivingLicenseField.setFont(labelFont);
@@ -87,7 +87,7 @@ public class Registration extends JFrame implements ActionListener {
         doneButton.addActionListener(this);
 
 
-        JPanel formPanel = new JPanel(new GridLayout(10, 2, 10, 8));
+        JPanel formPanel = new JPanel(new GridLayout(11, 2, 10, 8));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
         formPanel.add(firstNameLabel);
         formPanel.add(firstNameField);
@@ -103,6 +103,8 @@ public class Registration extends JFrame implements ActionListener {
         formPanel.add(CNICField);
         formPanel.add(drivingLicenseLabel);
         formPanel.add(drivingLicenseField);
+        formPanel.add(usernameLabel);
+        formPanel.add(usernameField);
         formPanel.add(passwordLabel);
         formPanel.add(passwordField1);
         formPanel.add(RetypePasswordLabel);
