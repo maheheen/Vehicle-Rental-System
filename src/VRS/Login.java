@@ -83,6 +83,11 @@ public class Login extends JFrame implements ActionListener {
     }
 
     public void actionPerformed(ActionEvent e) {
+        if(e.getSource() == cancelButton){
+            this.setVisible(false);
+            new WelcomePage().setVisible(true);
+        }
+
         if (e.getSource() == loginButton) {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
@@ -93,13 +98,13 @@ public class Login extends JFrame implements ActionListener {
             }
 
             int roleID = getUserRole(username, password);
-            if (roleID == 2) {
+            if (roleID == 1) {
                 this.setVisible(false);
                 new AdminPortal().setVisible(true);
             } else if (roleID == 3) {
                 this.setVisible(false);
                 new CustomerPortal().setVisible(true);
-                
+
             } else {
                 JOptionPane.showMessageDialog(this, "Your username or password is incorrect :(");
             }

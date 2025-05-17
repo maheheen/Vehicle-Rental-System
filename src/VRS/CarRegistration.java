@@ -21,8 +21,7 @@ public class CarRegistration extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(null);
-        getContentPane().setBackground(new Color(178, 172, 136, 80)); // Blue with transparency
-
+        getContentPane().setBackground(new Color(178, 172, 136, 80));
 
         JPanel formPanel = new JPanel();
         formPanel.setLayout(null);
