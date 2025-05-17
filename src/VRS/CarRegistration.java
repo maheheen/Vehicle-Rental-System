@@ -36,6 +36,7 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         regNoField = new JTextField();
         regNoField.setBounds(130, 20, 150, 25);
+        regNoField.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(regNoField);
 
         JLabel makeLabel = new JLabel("Make");
@@ -44,6 +45,7 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         makeField = new JTextField();
         makeField.setBounds(130, 60, 150, 25);
+        makeField.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(makeField);
 
         JLabel modelLabel = new JLabel("Model");
@@ -52,30 +54,37 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         modelField = new JTextField();
         modelField.setBounds(130, 100, 150, 25);
+        modelField.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(modelField);
 
         JLabel availabilityLabel = new JLabel("Available");
         availabilityLabel.setBounds(20, 140, 100, 25);
+        availabilityLabel.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(availabilityLabel);
 
         availabilityBox = new JComboBox<>(new String[]{"Yes", "No"});
         availabilityBox.setBounds(130, 140, 150, 25);
+        availabilityBox.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(availabilityBox);
 
         addButton = new JButton("Add");
         addButton.setBounds(10, 190, 70, 30);
+        addButton.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(addButton);
 
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(83, 190, 80, 30);
+        cancelButton.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(cancelButton);
 
         editButton = new JButton("Edit");
         editButton.setBounds(166, 190, 70, 30);
+        editButton.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(editButton);
 
         deleteButton = new JButton("Delete");
         deleteButton.setBounds(238, 190, 75, 30);
+        deleteButton.setBorder(BorderFactory.createEmptyBorder());
         formPanel.add(deleteButton);
 
 
@@ -83,6 +92,7 @@ public class CarRegistration extends JFrame implements ActionListener {
         carTable = new JTable(tableModel);
         JScrollPane tableScroll = new JScrollPane(carTable);
         tableScroll.setBounds(360, 20, 360, 300);
+        tableScroll.setBorder(BorderFactory.createEmptyBorder());
         add(tableScroll);
 
         add(formPanel);
