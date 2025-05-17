@@ -10,7 +10,7 @@ public class Registration extends JFrame implements ActionListener {
     JLabel titleLabel, firstNameLabel, lastNameLabel, phoneNumberLabel, emailLabel, drivingLicenseLabel, NationalIDLabel, uploadImageLabel, passwordLabel, RetypePasswordLabel, addressLabel,usernameLabel;
     JTextField firstNameField, lastNameField, phoneNumberField, EmailField, CNICField, drivingLicenseField, addressField, usernameField;
     JPasswordField passwordField1, passwordField2;
-    JButton uploadImage, doneButton;
+    JButton uploadImage, doneButton, backButton;
     Font titleFont, labelFont;
     File selectedImage = null;
 
@@ -78,13 +78,16 @@ public class Registration extends JFrame implements ActionListener {
 
         uploadImage = new JButton("Upload Image");
         doneButton = new JButton("Done");
+        backButton = new JButton("Back");
 
         uploadImage.setFont(labelFont);
         doneButton.setFont(labelFont);
+        backButton.setFont(labelFont);
 
 
         uploadImage.addActionListener(this);
         doneButton.addActionListener(this);
+        backButton.addActionListener(this);
 
 
         JPanel formPanel = new JPanel(new GridLayout(11, 2, 10, 8));
@@ -112,6 +115,7 @@ public class Registration extends JFrame implements ActionListener {
         formPanel.add(uploadImageLabel);
         formPanel.add(uploadImage);
         formPanel.add(doneButton);
+        formPanel.add(backButton);
 
 
         JPanel titlePanel = new JPanel(new BorderLayout(6,20));
@@ -119,10 +123,12 @@ public class Registration extends JFrame implements ActionListener {
 
         JPanel donePanel = new JPanel(new FlowLayout(FlowLayout.CENTER,10,10));
         donePanel.add(doneButton, BorderLayout.AFTER_LAST_LINE);
+        donePanel.add(backButton, BorderLayout.BEFORE_LINE_BEGINS);
 
         setLayout(new BorderLayout(10, 20));
         add(titlePanel, BorderLayout.NORTH);
         add(formPanel, BorderLayout.CENTER);
+        add(donePanel, BorderLayout.SOUTH);
         add(donePanel, BorderLayout.SOUTH);
     }
 
@@ -145,8 +151,12 @@ public class Registration extends JFrame implements ActionListener {
                 saveCustomerData();
             } else {
                 JOptionPane.showMessageDialog(this, "Please fill in all required fields and upload an image.");
+
             }
-        }
+        } else if (e.getSource() == backButton) {
+        this.setVisible(false); // Hides current frame
+        new Login().setVisible(true); // Assuming 'Registration' is another JFrame class
+    }
     }
 
     private boolean isFormValid() {

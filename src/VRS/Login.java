@@ -3,6 +3,10 @@ package VRS;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class Login extends JFrame implements ActionListener {
     JLabel titleLabel, usernameLabel, passwordLabel, iconLabel;
@@ -80,11 +84,51 @@ public class Login extends JFrame implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == loginButton) {
-            JOptionPane.showMessageDialog(this, "Login button clicked!");
-            // You can add navigation logic here later
-        } else if (e.getSource() == cancelButton) {
-            this.dispose(); // Close the window
+            String username = usernameField.getText().trim();
+            String password = new String(passwordField.getPassword());
+
+            if (username.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please enter both username and password.");
+                return;
+            }
+
+            if (validateLogin(username, password)) {
+                this.setVisible(false);
+                new AdminPortal().setVisible(true);
+            } else {
+                JOptionPane.showMessageDialog(this, "Your username or password is incorrect :(");
+            }
         }
+
+    }
+    public boolean validateLogin(String username, String password){
+        boolean isValid = false;
+        try{
+        String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
+        String query = "SELECT * FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
+        String dbUser= "sa";
+        String dbPass = "dblab";
+
+        Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
+
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setString(1, username);
+        statement.setString(2, password);
+
+        ResultSet rs = statement.executeQuery();
+
+        if(rs.next()) {
+            isValid = true;
+        }
+            rs.close();
+            statement.close();
+            conn.close();
+
+    } catch(Exception e){
+            JOptionPane.showMessageDialog(this, e.getMessage());
+        }
+        return isValid;
+
     }
 
     public static void main(String[] args) {
