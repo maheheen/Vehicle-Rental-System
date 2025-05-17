@@ -69,7 +69,8 @@ public class AdminPortal extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnCarRegistration) {
-            JOptionPane.showMessageDialog(this, "Car Registration section clicked.");
+            this.setVisible(false);
+            new CarRegistration().setVisible(true);
 
 
         } else if (e.getSource() == btnCustomer) {
