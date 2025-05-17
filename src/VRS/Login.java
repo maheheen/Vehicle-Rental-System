@@ -92,20 +92,25 @@ public class Login extends JFrame implements ActionListener {
                 return;
             }
 
-            if (validateLogin(username, password)) {
+            int roleID = getUserRole(username, password);
+            if (roleID == 2) {
                 this.setVisible(false);
                 new AdminPortal().setVisible(true);
+            } else if (roleID == 3) {
+                this.setVisible(false);
+                new CustomerPortal().setVisible(true);
+                
             } else {
                 JOptionPane.showMessageDialog(this, "Your username or password is incorrect :(");
             }
         }
 
     }
-    public boolean validateLogin(String username, String password){
-        boolean isValid = false;
+    public int getUserRole(String username, String password){
+        int roleId = -1;
         try{
         String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-        String query = "SELECT * FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
+        String query = "SELECT RoleId FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
         String dbUser= "sa";
         String dbPass = "dblab";
 
@@ -118,7 +123,7 @@ public class Login extends JFrame implements ActionListener {
         ResultSet rs = statement.executeQuery();
 
         if(rs.next()) {
-            isValid = true;
+            roleId = rs.getInt("RoleID");
         }
             rs.close();
             statement.close();
@@ -127,9 +132,11 @@ public class Login extends JFrame implements ActionListener {
     } catch(Exception e){
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
-        return isValid;
+        return roleId;
 
     }
+
+
 
     public static void main(String[] args) {
         new Login().setVisible(true);

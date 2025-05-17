@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 
 public class AdminPortal extends JFrame implements ActionListener {
 
-    private JButton btnCarRegistration, btnCustomer, btnRental, btnReturn, btnLogout;
+    private JButton btnCarRegistration, btnCustomer, btnRental, btnReturn, btnLogout, AdminManagement;
     private JPanel mainPanel;
 
     public AdminPortal() {
@@ -38,7 +38,7 @@ public class AdminPortal extends JFrame implements ActionListener {
         add(headingPanel,BorderLayout.NORTH);
 
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(5, 1, 10, 10));
+        buttonPanel.setLayout(new GridLayout(6, 1, 10, 10));
         buttonPanel.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 50));
 
         btnCarRegistration = new JButton("Car Registration");
@@ -46,9 +46,11 @@ public class AdminPortal extends JFrame implements ActionListener {
         btnRental = new JButton("Rental");
         btnReturn = new JButton("Return");
         btnLogout = new JButton("Logout");
+        AdminManagement= new JButton("Admin Management");
 
         buttonPanel.add(btnCarRegistration);
         buttonPanel.add(btnCustomer);
+        buttonPanel.add(AdminManagement);
         buttonPanel.add(btnRental);
         buttonPanel.add(btnReturn);
         buttonPanel.add(btnLogout);
@@ -61,6 +63,7 @@ public class AdminPortal extends JFrame implements ActionListener {
         btnRental.addActionListener(this);
         btnReturn.addActionListener(this);
         btnLogout.addActionListener(this);
+        AdminManagement.addActionListener(this);
     }
 
     @Override
@@ -77,7 +80,12 @@ public class AdminPortal extends JFrame implements ActionListener {
             JOptionPane.showMessageDialog(this, "Rental section clicked.");
 
 
-        } else if (e.getSource() == btnReturn) {
+        } else if (e.getSource() == AdminManagement) {
+            JOptionPane.showMessageDialog(this, "Admin Management section clicked.");
+
+        }
+
+        else if (e.getSource() == btnReturn) {
             JOptionPane.showMessageDialog(this, "Return section clicked.");
 
 

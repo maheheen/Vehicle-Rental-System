@@ -20,7 +20,7 @@ public class Registration extends JFrame implements ActionListener {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         titleFont = new Font("Sanserif", Font.BOLD, 26);
-        labelFont = new Font("SansSerif", Font.PLAIN, 18);
+        labelFont = new Font("SansSerif", Font.PLAIN, 16);
         titleLabel = new JLabel("Registration Form", JLabel.CENTER);
         titleLabel.setFont(titleFont);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -90,8 +90,8 @@ public class Registration extends JFrame implements ActionListener {
         backButton.addActionListener(this);
 
 
-        JPanel formPanel = new JPanel(new GridLayout(11, 2, 10, 8));
-        formPanel.setBorder(BorderFactory.createEmptyBorder(20, 30, 20, 30));
+        JPanel formPanel = new JPanel(new GridLayout(11, 2, 8, 7));
+        formPanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
         formPanel.add(firstNameLabel);
         formPanel.add(firstNameField);
         formPanel.add(lastNameLabel);
@@ -202,9 +202,8 @@ public class Registration extends JFrame implements ActionListener {
 
             try (Connection conn = DriverManager.getConnection(url, user, password)) {
 
-                String sql = "{CALL RegisterCustomer(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+                String sql = "{CALL RegisterCustomers(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
                 try (CallableStatement stmt = conn.prepareCall(sql)) {
-
                     stmt.setString(1, firstNameField.getText());
                     stmt.setString(2, lastNameField.getText());
                     stmt.setString(3, EmailField.getText());
@@ -212,13 +211,16 @@ public class Registration extends JFrame implements ActionListener {
                     stmt.setString(5, addressField.getText());
                     stmt.setString(6, drivingLicenseField.getText());
                     stmt.setString(7, CNICField.getText());
-                    stmt.setString(8, imagePath);
-                    stmt.setString(9, String.valueOf(passwordField1.getPassword()));
+                    stmt.setString(8, usernameField.getText());
 
-                    stmt.executeUpdate();
+                    String pass = new String(passwordField1.getPassword());
+                    stmt.setString(9, pass); // last param
 
-                    JOptionPane.showMessageDialog(this, "Customer data registered successfully!");
-                }
+                    stmt.execute();
+                    JOptionPane.showMessageDialog(this, "Customer registered successfully!");
+
+
+            }
             }
         } catch (SQLException | IOException ex) {
             JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage());
