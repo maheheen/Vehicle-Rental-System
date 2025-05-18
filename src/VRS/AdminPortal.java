@@ -9,8 +9,10 @@ public class AdminPortal extends JFrame implements ActionListener {
 
     private JButton btnCarRegistration, btnCustomer, btnRental, btnReturn, btnLogout, AdminManagement;
     private JPanel mainPanel;
+    int roleID;
 
-    public AdminPortal() {
+    public AdminPortal(int roleID) {
+        this.roleID = roleID;
         setTitle("Car Rental Admin Portal");
         setSize(400, 350);
         setLocationRelativeTo(null);
@@ -82,7 +84,7 @@ public class AdminPortal extends JFrame implements ActionListener {
 
 
         } else if (e.getSource() == AdminManagement) {
-            JOptionPane.showMessageDialog(this, "Admin Management section clicked.");
+           new AdminManagement(roleID).setVisible(true);
 
         }
 
@@ -100,9 +102,6 @@ public class AdminPortal extends JFrame implements ActionListener {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            AdminPortal adminPortal = new AdminPortal();
-            adminPortal.setVisible(true);
-        });
+        new AdminPortal(3).setVisible(true);
     }
 }

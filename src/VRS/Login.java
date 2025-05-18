@@ -15,7 +15,7 @@ public class Login extends JFrame implements ActionListener {
     JButton loginButton, cancelButton;
     JPanel formPanel, titlePanel, iconPanel;
     Font titleFont, labelFont;
-
+    private Connection conn;
     public Login() {
         super("Vehicle Rental System - Login");
         setSize(600, 300);
@@ -96,12 +96,13 @@ public class Login extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please enter both username and password.");
                 return;
             }
+            String hashedPass = PasswordHasher.hashPassword(password);
 
-            int roleID = getUserRole(username, password);
-            if (roleID == 1) {
+            int roleID = getUserRole(username, hashedPass);
+            if (roleID == 2 || roleID == 3) {
                 this.setVisible(false);
-                new AdminPortal().setVisible(true);
-            } else if (roleID == 3) {
+                new AdminPortal(roleID).setVisible(true);
+            } else if (roleID == 1) {
                 this.setVisible(false);
                 new CustomerPortal().setVisible(true);
 
@@ -114,12 +115,9 @@ public class Login extends JFrame implements ActionListener {
     public int getUserRole(String username, String password){
         int roleId = -1;
         try{
-        String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
         String query = "SELECT RoleId FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
-        String dbUser= "sa";
-        String dbPass = "dblab";
-
-        Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
+        ConnectionClass connectionClass = new ConnectionClass();
+        conn = connectionClass.con;
 
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, username);
