@@ -91,12 +91,12 @@ public class Login extends JFrame implements ActionListener {
         if (e.getSource() == loginButton) {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());
+            String hashedPass = PasswordHasher.hashPassword(password);
 
             if (username.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter both username and password.");
                 return;
             }
-            String hashedPass = PasswordHasher.hashPassword(password);
 
             int roleID = getUserRole(username, hashedPass);
             if (roleID == 2 || roleID == 3) {
@@ -115,7 +115,7 @@ public class Login extends JFrame implements ActionListener {
     public int getUserRole(String username, String password){
         int roleId = -1;
         try{
-        String query = "SELECT RoleId FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
+        String query = "SELECT RoleID FROM UserLogin WHERE Username = ? AND PasswordHash = ?";
         ConnectionClass connectionClass = new ConnectionClass();
         conn = connectionClass.con;
 
@@ -133,7 +133,8 @@ public class Login extends JFrame implements ActionListener {
             conn.close();
 
     } catch(Exception e){
-            JOptionPane.showMessageDialog(this, e.getMessage());
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Database error. Please contact admin.");
         }
         return roleId;
 

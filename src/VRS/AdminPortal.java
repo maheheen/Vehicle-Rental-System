@@ -95,7 +95,7 @@ public class AdminPortal extends JFrame implements ActionListener {
         } else if (e.getSource() == btnLogout) {
             int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
-                setVisible(false);
+                this.setVisible(false);
                 new WelcomePage().setVisible(true);
             }
         }

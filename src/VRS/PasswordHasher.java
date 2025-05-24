@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 public class PasswordHasher {
     public static String hashPassword(String password) {
         try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256"); // Uses MD5 algorithm
+            MessageDigest md = MessageDigest.getInstance("SHA-256"); // Uses SHA-256 algorithm
             byte[] hashedBytes = md.digest(password.getBytes());
             StringBuilder sb = new StringBuilder();
 
