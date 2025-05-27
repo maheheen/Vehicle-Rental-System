@@ -13,6 +13,7 @@ public class Registration extends JFrame implements ActionListener {
     JButton uploadImage, doneButton, backButton;
     Font titleFont, labelFont;
     File selectedImage = null;
+    private Connection conn;
 
     public Registration() {
         super("Create New Account");
@@ -177,9 +178,8 @@ public class Registration extends JFrame implements ActionListener {
     }
 
     private void saveCustomerData() {
-        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-        String user = "sa";
-        String password = "dblab";
+        ConnectionClass connectionClass = new ConnectionClass();
+        conn = connectionClass.con;
 
         try {
 
@@ -199,9 +199,6 @@ public class Registration extends JFrame implements ActionListener {
                     out.write(buffer, 0, length);
                 }
             }
-
-            try (Connection conn = DriverManager.getConnection(url, user, password)) {
-
                 String sql = "{CALL RegisterCustomers(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
                 try (CallableStatement stmt = conn.prepareCall(sql)) {
                     stmt.setString(1, usernameField.getText());
@@ -219,15 +216,12 @@ public class Registration extends JFrame implements ActionListener {
                     stmt.setString(7, addressField.getText());
                     stmt.setString(8, drivingLicenseField.getText());
                     stmt.setString(9, CNICField.getText());
-
-
-
                     stmt.execute();
                     JOptionPane.showMessageDialog(this, "Customer registered successfully!");
-
-
+                    dispose();
+                    new CustomerPortal().setVisible(true);
             }
-            }
+
         } catch (SQLException | IOException ex) {
             JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage());
             ex.printStackTrace();
@@ -237,6 +231,6 @@ public class Registration extends JFrame implements ActionListener {
 
     public static void main(String[] args) {
         new Registration().setVisible(true);
-        new Registration().saveCustomerData();
+//        new Registration().saveCustomerData();
     }
 }
