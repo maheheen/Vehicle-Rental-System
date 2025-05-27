@@ -88,6 +88,7 @@ public class Login extends JFrame implements ActionListener {
             new WelcomePage().setVisible(true);
         }
 
+
         if (e.getSource() == loginButton) {
             String username = usernameField.getText().trim();
             String password = new String(passwordField.getPassword());

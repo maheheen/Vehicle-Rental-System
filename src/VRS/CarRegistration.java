@@ -307,6 +307,10 @@ public class CarRegistration extends JFrame implements ActionListener {
                 JOptionPane.showMessageDialog(this, "Please select a row to edit.");
             }
         }
+            if(e.getSource() == cancelButton){
+                this.setVisible(false);
+                new AdminPortal().setVisible(true);
+            }
     }
 
     public static void main(String[] args) {
