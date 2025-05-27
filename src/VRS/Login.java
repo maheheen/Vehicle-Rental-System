@@ -121,7 +121,7 @@ public class Login extends JFrame implements ActionListener {
 
             Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
 
-            String query = "SELECT PasswordHash, RoleID FROM LoginTB WHERE Username = ?";
+            String query = "SELECT PasswordHash, RoleID FROM UserLogin WHERE Username = ?";
             PreparedStatement statement = conn.prepareStatement(query);
             statement.setString(1, username);
 
