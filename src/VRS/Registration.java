@@ -182,7 +182,6 @@ public class Registration extends JFrame implements ActionListener {
         String password = "dblab";
 
         try {
-
             File imageDir = new File("images");
             if (!imageDir.exists()) {
                 imageDir.mkdir();
@@ -201,38 +200,34 @@ public class Registration extends JFrame implements ActionListener {
             }
 
             try (Connection conn = DriverManager.getConnection(url, user, password)) {
-
-                String sql = "{CALL RegisterCustomers(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+                String sql = "{CALL NewRegisterCustomer(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
                 try (CallableStatement stmt = conn.prepareCall(sql)) {
-                    stmt.setString(1, usernameField.getText());
 
+                    String username = usernameField.getText();
                     String pass = new String(passwordField1.getPassword());
-                    // Hash the password using your PasswordHasher class
-                    String hashedPass = PasswordHasher.hashPassword(pass);
+                    String hashedPass = PasswordHasher.hashPassword(pass); // assuming this is your hasher
 
+                    stmt.setString(1, usernameField.getText());
                     stmt.setString(2, hashedPass);
-
                     stmt.setString(3, firstNameField.getText());
                     stmt.setString(4, lastNameField.getText());
                     stmt.setString(5, EmailField.getText());
-                    stmt.setString(6 , phoneNumberField.getText());
+                    stmt.setString(6, phoneNumberField.getText());
                     stmt.setString(7, addressField.getText());
                     stmt.setString(8, drivingLicenseField.getText());
                     stmt.setString(9, CNICField.getText());
-
-
+                    stmt.setString(10, imagePath);
 
                     stmt.execute();
                     JOptionPane.showMessageDialog(this, "Customer registered successfully!");
-
-
-            }
+                }
             }
         } catch (SQLException | IOException ex) {
             JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage());
             ex.printStackTrace();
         }
     }
+
 
 
     public static void main(String[] args) {

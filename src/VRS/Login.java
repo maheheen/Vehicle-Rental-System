@@ -111,39 +111,44 @@ public class Login extends JFrame implements ActionListener {
         }
 
     }
-    public int getUserRole(String username, String password){
+    public int getUserRole(String username, String password) {
         int roleId = -1;
-        try{
-        String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-        String query = "SELECT RoleId FROM LoginTB WHERE Username = ? AND PasswordHash = ?";
-        String dbUser= "sa";
-        String dbPass = "dblab";
+        try {
+            String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
+            String dbUser = "sa";
+            String dbPass = "dblab";
 
-        Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
+            Connection conn = DriverManager.getConnection(dbURL, dbUser, dbPass);
 
-        PreparedStatement statement = conn.prepareStatement(query);
-        statement.setString(1, username);
-        statement.setString(2, password);
+            String query = "SELECT PasswordHash, RoleID FROM LoginTB WHERE Username = ?";
+            PreparedStatement statement = conn.prepareStatement(query);
+            statement.setString(1, username);
 
-        ResultSet rs = statement.executeQuery();
+            ResultSet rs = statement.executeQuery();
 
-        if(rs.next()) {
-            roleId = rs.getInt("RoleID");
-        }
+            if (rs.next()) {
+                String storedHash = rs.getString("PasswordHash");
+                if (PasswordHasher.verifyPassword(password, storedHash)) {
+                    roleId = rs.getInt("RoleID");
+            }
+            }
+
             rs.close();
             statement.close();
             conn.close();
 
-    } catch(Exception e){
+        } catch (Exception e) {
             JOptionPane.showMessageDialog(this, e.getMessage());
         }
         return roleId;
-
     }
-
 
 
     public static void main(String[] args) {
         new Login().setVisible(true);
+
+
     }
 }
+
+
