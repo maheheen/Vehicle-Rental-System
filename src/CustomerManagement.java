@@ -20,7 +20,7 @@ public class CustomerManagement extends JFrame implements ActionListener {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         getContentPane().setBackground(new Color(178, 172, 136, 80));
-        
+
         String[] labels = {
                 "Customer ID", "First Name", "Last Name", "Email", "Phone Number", "Home Address",
                 "Driving License #", "National ID #", "Login ID", "Username"
