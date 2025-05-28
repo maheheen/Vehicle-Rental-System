@@ -1,3 +1,7 @@
+package VehicleBooking;
+
+import VRS.ConnectionClass;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -5,77 +9,107 @@ import java.sql.*;
 
 public class VehicleBooking extends JFrame {
 
-    JComboBox<String> cbBrand, cbType, cbFuel, cbTrans;
-    JTextField txtModel, txtSeats, txtMinRate, txtMaxRate;
-    JButton btnSearch, btnBook;
-    JTable table;
-    DefaultTableModel model;
+    private JTable vehicleTable;
+    private JTextField brandField, modelField, yearField, capacityField, minRateField, maxRateField;
+    private JComboBox<String> transmissionCombo, fuelTypeCombo, typeIDCombo;
+    private JButton searchButton;
 
     public VehicleBooking() {
         setTitle("Vehicle Filter & Booking");
-        setSize(905, 500);
+        setSize(1000, 500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Top Filter Panel
-        JPanel filterPanel = new JPanel(new GridLayout(3, 5, 10, 10));
-        cbBrand = new JComboBox<>(new String[]{"Any", "Toyota", "Honda", "Kia"});
-        cbType = new JComboBox<>(new String[]{"Any", "1", "2", "3"}); // Use actual TypeID
-        cbFuel = new JComboBox<>(new String[]{"Any", "1", "2", "3"}); // Use actual FuelTypeID
-        cbTrans = new JComboBox<>(new String[]{"Any", "Manual", "Automatic"});
-        txtModel = new JTextField();
-        txtSeats = new JTextField();
-        txtMinRate = new JTextField();
-        txtMaxRate = new JTextField();
-        btnSearch = new JButton("Search");
-        btnBook = new JButton("Book Selected Vehicle");
+        // Filter panel
+        JPanel filterPanel = new JPanel(new GridLayout(3, 6, 5, 5));
 
-        filterPanel.add(new JLabel("Brand:")); filterPanel.add(cbBrand);
-        filterPanel.add(new JLabel("TypeID:")); filterPanel.add(cbType);
-        filterPanel.add(new JLabel("Model:")); filterPanel.add(txtModel);
-        filterPanel.add(new JLabel("FuelTypeID:")); filterPanel.add(cbFuel);
-        filterPanel.add(new JLabel("Transmission:")); filterPanel.add(cbTrans);
-        filterPanel.add(new JLabel("Seating Capacity:")); filterPanel.add(txtSeats);
-        filterPanel.add(new JLabel("Min Rate:")); filterPanel.add(txtMinRate);
-        filterPanel.add(new JLabel("Max Rate:")); filterPanel.add(txtMaxRate);
-        filterPanel.add(btnSearch); filterPanel.add(btnBook);
+        brandField = new JTextField();
+        modelField = new JTextField();
+        yearField = new JTextField();
+        capacityField = new JTextField();
+        minRateField = new JTextField();
+        maxRateField = new JTextField();
 
-        add(filterPanel, BorderLayout.NORTH);
+        transmissionCombo = new JComboBox<>(new String[]{"Any", "Automatic", "Manual"});
+        fuelTypeCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});  // Update as per DB
+        typeIDCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});    // Update as per DB
+
+        filterPanel.add(new JLabel("Brand:"));
+        filterPanel.add(brandField);
+        filterPanel.add(new JLabel("Model:"));
+        filterPanel.add(modelField);
+        filterPanel.add(new JLabel("Make Year:"));
+        filterPanel.add(yearField);
+
+        filterPanel.add(new JLabel("Seating Capacity:"));
+        filterPanel.add(capacityField);
+        filterPanel.add(new JLabel("Transmission:"));
+        filterPanel.add(transmissionCombo);
+        filterPanel.add(new JLabel("FuelTypeID:"));
+        filterPanel.add(fuelTypeCombo);
+
+        filterPanel.add(new JLabel("TypeID:"));
+        filterPanel.add(typeIDCombo);
+        filterPanel.add(new JLabel("Min Rate:"));
+        filterPanel.add(minRateField);
+        filterPanel.add(new JLabel("Max Rate:"));
+        filterPanel.add(maxRateField);
+
+        searchButton = new JButton("Search");
+        searchButton.addActionListener(e -> filterVehicles());
+
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(filterPanel, BorderLayout.CENTER);
+        topPanel.add(searchButton, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
 
         // Table
-        model = new DefaultTableModel();
-        table = new JTable(model);
-        add(new JScrollPane(table), BorderLayout.CENTER);
-
-        model.setColumnIdentifiers(new String[]{
+        vehicleTable = new JTable(new DefaultTableModel(new Object[]{
                 "VehicleID", "Brand", "Model", "MakeYear", "SeatingCapacity",
                 "TransmissionType", "TypeID", "FuelTypeID", "Rate"
-        });
-
-        btnSearch.addActionListener(e -> loadData());
-        btnBook.addActionListener(e -> bookSelectedVehicle());
+        }, 0));
+        add(new JScrollPane(vehicleTable), BorderLayout.CENTER);
 
         setVisible(true);
     }
 
-    private void loadData() {
-        model.setRowCount(0); // Clear table
+    private void filterVehicles() {
+        Connection conn = ConnectionClass.getConnection();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Database connection failed!");
+            return;
+        }
 
-        try (Connection conn = DBConnection.getConnection()) {
-            CallableStatement stmt = conn.prepareCall("{call FilterVehicles(?, ?, ?, ?, ?, ?, ?, ?, ?)}");
+        String sql = "{call FilterVehicles(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
-            stmt.setObject(1, getNullable(cbBrand.getSelectedItem().toString()));
-            stmt.setObject(2, getNullable(txtModel.getText()));
-            stmt.setObject(3, null); // MakeYear - optional
-            stmt.setObject(4, parseInt(txtSeats.getText()));
-            stmt.setObject(5, getNullable(cbTrans.getSelectedItem().toString()));
-            stmt.setObject(6, parseInt(cbType.getSelectedItem().toString()));
-            stmt.setObject(7, parseInt(cbFuel.getSelectedItem().toString()));
-            stmt.setObject(8, parseInt(txtMinRate.getText()));
-            stmt.setObject(9, parseInt(txtMaxRate.getText()));
+        try (CallableStatement stmt = conn.prepareCall(sql)) {
+            // GUI input values
+            String brand = brandField.getText().trim();
+            String model = modelField.getText().trim();
+            String yearText = yearField.getText().trim();
+            String capacityText = capacityField.getText().trim();
+            String transmission = transmissionCombo.getSelectedItem().toString();
+            String fuelText = fuelTypeCombo.getSelectedItem().toString();
+            String typeText = typeIDCombo.getSelectedItem().toString();
+            String minRateText = minRateField.getText().trim();
+            String maxRateText = maxRateField.getText().trim();
+
+            // Set procedure parameters
+            stmt.setString(1, brand.isEmpty() ? null : brand);
+            stmt.setString(2, model.isEmpty() ? null : model);
+            stmt.setObject(3, yearText.isEmpty() ? null : Integer.parseInt(yearText), Types.INTEGER);
+            stmt.setObject(4, capacityText.isEmpty() ? null : Integer.parseInt(capacityText), Types.INTEGER);
+            stmt.setString(5, transmission.equalsIgnoreCase("Any") ? null : transmission);
+            stmt.setObject(6, typeText.equalsIgnoreCase("Any") ? null : Integer.parseInt(typeText), Types.INTEGER);
+            stmt.setObject(7, fuelText.equalsIgnoreCase("Any") ? null : Integer.parseInt(fuelText), Types.INTEGER);
+            stmt.setObject(8, minRateText.isEmpty() ? null : Integer.parseInt(minRateText), Types.INTEGER);
+            stmt.setObject(9, maxRateText.isEmpty() ? null : Integer.parseInt(maxRateText), Types.INTEGER);
 
             ResultSet rs = stmt.executeQuery();
+            DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
+            model.setRowCount(0); // Clear old results
+
             while (rs.next()) {
                 model.addRow(new Object[]{
                         rs.getInt("VehicleID"),
@@ -90,62 +124,11 @@ public class VehicleBooking extends JFrame {
                 });
             }
 
-        } catch (Exception ex) {
+        } catch (SQLException ex) {
+            ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading vehicles: " + ex.getMessage());
         }
     }
-
-    private Object getNullable(String val) {
-        return val.equals("Any") || val.isBlank() ? null : val;
-    }
-
-    private Integer parseInt(String val) {
-        try {
-            return val.isBlank() ? null : Integer.parseInt(val);
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
-    private void bookSelectedVehicle() {
-        int row = table.getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a vehicle to book.");
-            return;
-        }
-
-        int vehicleId = (int) model.getValueAt(row, 0);
-        int customerId = 1; // Replace with actual logged-in customer ID
-        String startDate = JOptionPane.showInputDialog("Enter Start Date (YYYY-MM-DD):");
-        String endDate = JOptionPane.showInputDialog("Enter End Date (YYYY-MM-DD):");
-        String pickup = JOptionPane.showInputDialog("Pickup Location:");
-        String dropoff = JOptionPane.showInputDialog("Dropoff Location:");
-
-        try (Connection conn = DBConnection.getConnection()) {
-            CallableStatement stmt = conn.prepareCall("{call CreateRental(?, ?, ?, ?, ?, ?)}");
-            stmt.setInt(1, customerId);
-            stmt.setInt(2, vehicleId);
-            stmt.setDate(3, Date.valueOf(startDate));
-            stmt.setDate(4, Date.valueOf(endDate));
-            stmt.setString(5, pickup);
-            stmt.setString(6, dropoff);
-            stmt.execute();
-
-            JOptionPane.showMessageDialog(this, "Vehicle booked successfully!");
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Booking error: " + e.getMessage());
-        }
-    }
-
-    public class DBConnection {
-        public static Connection getConnection() throws Exception {
-            String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-            String user = "sa";
-            String password = "dblab";
-            return DriverManager.getConnection(url, user, password);
-        }
-    }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(VehicleBooking::new);
