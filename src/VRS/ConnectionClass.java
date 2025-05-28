@@ -5,9 +5,9 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionClass {
-    public Connection con;
+    public static Connection con;
 
-    public ConnectionClass() {
+    static {
         String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
         String user = "sa";
         String password = "dblab";
@@ -25,4 +25,7 @@ public class ConnectionClass {
         }
     }
 
+    public static Connection getConnection() {
+        return con;
+    }
 }
