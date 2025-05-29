@@ -3,6 +3,7 @@ package VRS;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.*;
 import java.sql.*;
 
@@ -34,14 +35,17 @@ public class AdminManagement extends JFrame {
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
 
+        // Disable input fields — they’re only for display on row selection
+        txtUsername.setEnabled(true);
+        txtPassword.setEnabled(true);
+
         formPanel.add(new JLabel("Username:"));
         formPanel.add(txtUsername);
         formPanel.add(new JLabel("Password:"));
         formPanel.add(txtPassword);
 
-        // Role dropdown removed since only Admin can be added
         formPanel.add(new JLabel("Role:"));
-        formPanel.add(new JLabel("Admin (default)")); // Just info
+        formPanel.add(new JLabel("Admin (default)"));
 
         btnAdd = new JButton("Add Admin");
         btnUpdate = new JButton("Update Admin");
@@ -60,8 +64,8 @@ public class AdminManagement extends JFrame {
         btnUpdate.addActionListener(e -> updateAdmin());
         btnRemove.addActionListener(e -> removeAdmin());
         btnBack.addActionListener(e -> {
-            dispose(); // close current window
-            new AdminPortal(currentUserRoleID).setVisible(true); // pass the role if needed
+            dispose();
+            new AdminPortal(currentUserRoleID).setVisible(true);
         });
 
         adminTable.addMouseListener(new MouseAdapter() {
@@ -70,8 +74,8 @@ public class AdminManagement extends JFrame {
             }
         });
 
-        // Limit permissions based on role
-        if (currentUserRoleID != 3) { // Not SuperAdmin
+        // Role-based permissions
+        if (currentUserRoleID != 3) {
             btnUpdate.setEnabled(false);
             btnRemove.setEnabled(false);
         }
@@ -113,16 +117,15 @@ public class AdminManagement extends JFrame {
     }
 
     private void addAdmin() {
-        String username = txtUsername.getText().trim();
-        String password = new String(txtPassword.getPassword());
-
-        if (username.isEmpty() || password.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Username and Password cannot be empty.");
+        if (currentUserRoleID != 3) {
+            JOptionPane.showMessageDialog(this, "Only SuperAdmin can add admins.");
             return;
         }
 
-        String hashedPassword = PasswordHasher.hashPassword(password);
-        int roleID = 2; // Admin only
+        String username = "admin_" + generateRandomString(5).toLowerCase();
+        String rawPassword = generateRandomString(8);
+        String hashedPassword = PasswordHasher.hashPassword(rawPassword);
+        int roleID = 2;
 
         try {
             CallableStatement stmt = conn.prepareCall("{ call AddAdmin(?, ?, ?) }");
@@ -131,8 +134,26 @@ public class AdminManagement extends JFrame {
             stmt.setInt(3, roleID);
             stmt.executeUpdate();
 
-            JOptionPane.showMessageDialog(this, "Admin added successfully.");
             loadAdmins();
+
+            // Show generated credentials
+            JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
+            JLabel userLabel = new JLabel("Username: " + username);
+            JLabel passLabel = new JLabel("Password: " + rawPassword);
+            JButton copyBtn = new JButton("Copy Password");
+
+            copyBtn.addActionListener(e -> {
+                Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                        new StringSelection(rawPassword), null);
+                JOptionPane.showMessageDialog(this, "Password copied to clipboard.");
+            });
+
+            panel.add(userLabel);
+            panel.add(passLabel);
+            panel.add(copyBtn);
+
+            JOptionPane.showMessageDialog(this, panel, "Admin Created", JOptionPane.INFORMATION_MESSAGE);
+
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error adding admin: " + ex.getMessage());
         }
@@ -156,13 +177,35 @@ public class AdminManagement extends JFrame {
             return;
         }
 
+        String finalPassword;
+
+        if (password.isEmpty()) {
+            // Fetch current password from the DB
+            try {
+                PreparedStatement ps = conn.prepareStatement("SELECT PasswordHash FROM UserLogin WHERE LoginID = ?");
+                ps.setInt(1, loginID);
+                ResultSet rs = ps.executeQuery();
+                if (rs.next()) {
+                    finalPassword = rs.getString("PasswordHash");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Could not retrieve existing password.");
+                    return;
+                }
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, "Error fetching current password: " + ex.getMessage());
+                return;
+            }
+        } else {
+            finalPassword = PasswordHasher.hashPassword(password);
+        }
+
         try {
             CallableStatement stmt = conn.prepareCall("{ call UpdateAdmins(?, ?, ?, ?, ?) }");
             stmt.setInt(1, loginID);
             stmt.setString(2, username);
-            stmt.setString(3, password.isEmpty() ? null : PasswordHasher.hashPassword(password));
-            stmt.setInt(4, 2); // Fixed Admin role
-            stmt.setInt(5, currentUserRoleID); // <-- SuperAdmin check
+            stmt.setString(3, finalPassword);
+            stmt.setInt(4, 2); // Admin role fixed
+            stmt.setInt(5, currentUserRoleID); // For permission check
 
             stmt.executeUpdate();
 
@@ -184,14 +227,18 @@ public class AdminManagement extends JFrame {
         }
 
         int loginID = (int) adminTable.getValueAt(selectedRow, 0);
+        String username = adminTable.getValueAt(selectedRow, 1).toString();
 
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to remove this admin?", "Confirm", JOptionPane.YES_NO_OPTION);
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to remove admin: " + username + "?",
+                "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+
         if (confirm != JOptionPane.YES_OPTION) return;
 
         try {
             CallableStatement stmt = conn.prepareCall("{ call RemoveAdmin(?, ?) }");
             stmt.setInt(1, loginID);
-            stmt.setInt(2, currentUserRoleID); // pass current role for check
+            stmt.setInt(2, currentUserRoleID);
 
             stmt.executeUpdate();
 
@@ -206,12 +253,21 @@ public class AdminManagement extends JFrame {
         int selectedRow = adminTable.getSelectedRow();
         if (selectedRow != -1) {
             txtUsername.setText(adminTable.getValueAt(selectedRow, 1).toString());
-            txtPassword.setText("");
+            txtPassword.setText(""); // Password not visible for security
         }
     }
 
+    private String generateRandomString(int length) {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = (int) (Math.random() * chars.length());
+            sb.append(chars.charAt(index));
+        }
+        return sb.toString();
+    }
+
     public static void main(String[] args) {
-        // For testing, assume logged-in user is SuperAdmin (roleID = 3)
-        new AdminManagement(3).setVisible(true);
+        new AdminManagement(3).setVisible(true); // SuperAdmin
     }
 }
