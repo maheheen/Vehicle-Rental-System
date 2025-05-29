@@ -1,3 +1,4 @@
+package VRS;
 import VRS.ConnectionClass;
 import VRS.PasswordHasher;
 

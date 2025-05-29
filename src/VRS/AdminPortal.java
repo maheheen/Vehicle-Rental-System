@@ -74,8 +74,8 @@ public class AdminPortal extends JFrame implements ActionListener {
 
 
         } else if (e.getSource() == btnCustomer) {
-            JOptionPane.showMessageDialog(this, "Customer section clicked.");
-
+            this.setVisible(false);
+            new CustomerManagement().setVisible(true);
 
         } else if (e.getSource() == btnRental) {
             JOptionPane.showMessageDialog(this, "Rental section clicked.");
