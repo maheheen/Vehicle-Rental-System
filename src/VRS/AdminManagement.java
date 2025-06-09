@@ -25,17 +25,13 @@ public class AdminManagement extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
-        // Table
         adminTable = new JTable();
         JScrollPane scrollPane = new JScrollPane(adminTable);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Form Panel
         JPanel formPanel = new JPanel(new GridLayout(5, 2, 10, 10));
         txtUsername = new JTextField();
         txtPassword = new JPasswordField();
-
-        // Disable input fields — they’re only for display on row selection
         txtUsername.setEnabled(true);
         txtPassword.setEnabled(true);
 
@@ -43,7 +39,6 @@ public class AdminManagement extends JFrame {
         formPanel.add(txtUsername);
         formPanel.add(new JLabel("Password:"));
         formPanel.add(txtPassword);
-
         formPanel.add(new JLabel("Role:"));
         formPanel.add(new JLabel("Admin (default)"));
 
@@ -59,7 +54,6 @@ public class AdminManagement extends JFrame {
 
         add(formPanel, BorderLayout.SOUTH);
 
-        // Button listeners
         btnAdd.addActionListener(e -> addAdmin());
         btnUpdate.addActionListener(e -> updateAdmin());
         btnRemove.addActionListener(e -> removeAdmin());
@@ -74,7 +68,6 @@ public class AdminManagement extends JFrame {
             }
         });
 
-        // Role-based permissions
         if (currentUserRoleID != 3) {
             btnUpdate.setEnabled(false);
             btnRemove.setEnabled(false);
@@ -88,11 +81,9 @@ public class AdminManagement extends JFrame {
         try {
             ConnectionClass connectionClass = new ConnectionClass();
             conn = connectionClass.con;
-
             if (conn == null) {
                 JOptionPane.showMessageDialog(this, "Connection object is null.");
             }
-
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "DB Connection Failed: " + ex.getMessage());
         }
@@ -116,13 +107,37 @@ public class AdminManagement extends JFrame {
         }
     }
 
+    private boolean isUsernameTaken(String username) {
+        try (PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(*) FROM UserLogin WHERE Username = ?")) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, "Error checking username: " + ex.getMessage());
+        }
+        return true;
+    }
+
+    private String generateUniqueUsername(String prefix) {
+        String base = prefix.trim().replaceAll("\\s+", "").toLowerCase();
+        String username;
+        int suffix = 1;
+        do {
+            username = base + suffix;
+            suffix++;
+        } while (isUsernameTaken(username));
+        return username;
+    }
+
     private void addAdmin() {
         if (currentUserRoleID != 3) {
             JOptionPane.showMessageDialog(this, "Only SuperAdmin can add admins.");
             return;
         }
 
-        String username = "admin_" + generateRandomString(5).toLowerCase();
+        String username = generateUniqueUsername("admin");
         String rawPassword = generateRandomString(8);
         String hashedPassword = PasswordHasher.hashPassword(rawPassword);
         int roleID = 2;
@@ -136,7 +151,6 @@ public class AdminManagement extends JFrame {
 
             loadAdmins();
 
-            // Show generated credentials
             JPanel panel = new JPanel(new GridLayout(3, 1, 10, 10));
             JLabel userLabel = new JLabel("Username: " + username);
             JLabel passLabel = new JLabel("Password: " + rawPassword);
@@ -180,7 +194,6 @@ public class AdminManagement extends JFrame {
         String finalPassword;
 
         if (password.isEmpty()) {
-            // Fetch current password from the DB
             try {
                 PreparedStatement ps = conn.prepareStatement("SELECT PasswordHash FROM UserLogin WHERE LoginID = ?");
                 ps.setInt(1, loginID);
@@ -204,9 +217,8 @@ public class AdminManagement extends JFrame {
             stmt.setInt(1, loginID);
             stmt.setString(2, username);
             stmt.setString(3, finalPassword);
-            stmt.setInt(4, 2); // Admin role fixed
-            stmt.setInt(5, currentUserRoleID); // For permission check
-
+            stmt.setInt(4, 2);
+            stmt.setInt(5, currentUserRoleID);
             stmt.executeUpdate();
 
             JOptionPane.showMessageDialog(this, "Admin updated.");
@@ -215,7 +227,6 @@ public class AdminManagement extends JFrame {
             JOptionPane.showMessageDialog(this, "Error updating admin: " + ex.getMessage());
         }
     }
-
 
     private void removeAdmin() {
         if (currentUserRoleID != 3) return;
@@ -239,7 +250,6 @@ public class AdminManagement extends JFrame {
             CallableStatement stmt = conn.prepareCall("{ call RemoveAdmin(?, ?) }");
             stmt.setInt(1, loginID);
             stmt.setInt(2, currentUserRoleID);
-
             stmt.executeUpdate();
 
             JOptionPane.showMessageDialog(this, "Admin removed.");
@@ -253,7 +263,7 @@ public class AdminManagement extends JFrame {
         int selectedRow = adminTable.getSelectedRow();
         if (selectedRow != -1) {
             txtUsername.setText(adminTable.getValueAt(selectedRow, 1).toString());
-            txtPassword.setText(""); // Password not visible for security
+            txtPassword.setText("");
         }
     }
 
@@ -268,6 +278,6 @@ public class AdminManagement extends JFrame {
     }
 
     public static void main(String[] args) {
-        new AdminManagement(3).setVisible(true); // SuperAdmin
+        new AdminManagement(3).setVisible(true);
     }
 }
