@@ -414,7 +414,7 @@ public class CarRegistration extends JFrame implements ActionListener {
             clearForm();
         } else if (e.getSource() == backButton) {
             this.setVisible(false);
-            new AdminPortal().setVisible(true);
+            new AdminPortal(2).setVisible(true);
         }
     }
 

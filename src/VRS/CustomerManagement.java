@@ -98,7 +98,7 @@ public class CustomerManagement extends JFrame implements ActionListener {
         cancelButton.addActionListener(this);
         backButton.addActionListener(e -> {
             this.setVisible(false);
-            new AdminPortal().setVisible(true);
+            new AdminPortal(2).setVisible(true);
         });
 
         // Customer Table
