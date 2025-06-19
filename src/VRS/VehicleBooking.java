@@ -87,15 +87,14 @@ public class VehicleBooking extends JFrame {
 
         proceedButton.addActionListener(e -> {
             if (selectedVehicleID != -1) {
-                int selectedRow = vehicleTable.getSelectedRow();
-                int amount = (int) vehicleTable.getValueAt(selectedRow, 8); // Rate column
-
-                new PaymentPage(customerID, selectedVehicleID, amount);
+                new BookingDetails(customerID, selectedVehicleID); // ✅ Go to BookingDetails instead
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a vehicle first.");
             }
         });
+
+
 
         loadDropdowns();
         setVisible(true);

@@ -108,8 +108,11 @@ public class PaymentPage extends JFrame {
 
             if (rows > 0) {
                 JOptionPane.showMessageDialog(this, "💳 Payment Successful!");
-                this.dispose();
-            } else {
+                this.dispose(); // close payment window
+                new CustomerPortal(); // open customer portal again
+
+
+        } else {
                 JOptionPane.showMessageDialog(this, "❌ Payment Failed.");
             }
 
