@@ -132,6 +132,15 @@ public class Registration extends JFrame implements ActionListener {
         add(formPanel, BorderLayout.CENTER);
         add(donePanel, BorderLayout.SOUTH);
         add(donePanel, BorderLayout.SOUTH);
+
+        firstNameField.setToolTipText("First letter capital. Only alphabets.");
+        lastNameField.setToolTipText("First letter capital. Only alphabets.");
+        EmailField.setToolTipText("example123@gmail.com");
+        phoneNumberField.setToolTipText("Format: 03XXXXXXXXX");
+        addressField.setToolTipText("Cannot be empty");
+        drivingLicenseField.setToolTipText("Format: 42201-9879905-3#723");
+        CNICField.setToolTipText("Format: 42101-1234567-1");
+
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -162,21 +171,67 @@ public class Registration extends JFrame implements ActionListener {
     }
 
     private boolean isFormValid() {
+        String first = firstNameField.getText().trim();
+        String last = lastNameField.getText().trim();
+        String email = EmailField.getText().trim();
+        String phone = phoneNumberField.getText().trim();
+        String cnic = CNICField.getText().trim();
+        String license = drivingLicenseField.getText().trim();
+        String address = addressField.getText().trim();
+        String user = usernameField.getText().trim();
+        String pass1 = new String(passwordField1.getPassword());
+        String pass2 = new String(passwordField2.getPassword());
 
-        if (firstNameField.getText().isEmpty() || lastNameField.getText().isEmpty() ||
-                phoneNumberField.getText().isEmpty() || EmailField.getText().isEmpty() ||
-                CNICField.getText().isEmpty() || passwordField1.getPassword().length == 0 ||
-                passwordField2.getPassword().length == 0 || selectedImage == null) {
+        if (first.isEmpty() || last.isEmpty() || email.isEmpty() || phone.isEmpty() ||
+                cnic.isEmpty() || license.isEmpty() || address.isEmpty() || user.isEmpty() ||
+                pass1.isEmpty() || pass2.isEmpty() || selectedImage == null) {
+            JOptionPane.showMessageDialog(this, "Please fill in all required fields and upload an image.");
             return false;
         }
 
-        if (!String.valueOf(passwordField1.getPassword()).equals(String.valueOf(passwordField2.getPassword()))) {
+        if (!first.matches("[A-Z][a-zA-Z]*")) {
+            JOptionPane.showMessageDialog(this, "First name must start with a capital letter and contain only alphabets.");
+            return false;
+        }
+
+        if (!last.matches("[A-Z][a-zA-Z]*")) {
+            JOptionPane.showMessageDialog(this, "Last name must start with a capital letter and contain only alphabets.");
+            return false;
+        }
+
+        if (!email.matches("^[a-zA-Z0-9._%+-]+@gmail\\.com$")) {
+            JOptionPane.showMessageDialog(this, "Email must be like firstname.lastname@gmail.com.");
+            return false;
+        }
+
+        if (!phone.matches("03\\d{9}")) {
+            JOptionPane.showMessageDialog(this, "Phone must be in format: 03XXXXXXXXX.");
+            return false;
+        }
+
+        if (!address.matches(".{3,}")) {
+            JOptionPane.showMessageDialog(this, "Address cannot be empty or too short.");
+            return false;
+        }
+
+        if (!license.matches("\\d{5}-\\d{7}-\\d#\\d{3}")) {
+            JOptionPane.showMessageDialog(this, "License must follow format 42201-9879905-3#723.");
+            return false;
+        }
+
+        if (!cnic.matches("\\d{5}-\\d{7}-\\d")) {
+            JOptionPane.showMessageDialog(this, "CNIC must follow format 42101-1234567-1.");
+            return false;
+        }
+
+        if (!pass1.equals(pass2)) {
             JOptionPane.showMessageDialog(this, "Passwords do not match.");
             return false;
         }
 
         return true;
     }
+
 
     private void saveCustomerData() {
         ConnectionClass connectionClass = new ConnectionClass();
