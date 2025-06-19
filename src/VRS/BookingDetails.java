@@ -122,13 +122,12 @@ public class BookingDetails extends JFrame {
             int rowsInserted = stmt.executeUpdate();
 
             if (rowsInserted > 0) {
-                updateStmt.setInt(1, vehicleID);
-                updateStmt.executeUpdate();
-
                 JOptionPane.showMessageDialog(this, "✅ Booking saved successfully!");
-                new PaymentPage(customerID, vehicleID, (int) totalBill); // Proceed to payment
+                new PaymentPage(customerID, vehicleID, (int) totalBill);  // 👈 Launch Payment Form
                 this.dispose();
-            } else {
+
+
+        } else {
                 JOptionPane.showMessageDialog(this, "❌ Booking failed to save.");
             }
 
