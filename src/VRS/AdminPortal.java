@@ -80,8 +80,7 @@ public class AdminPortal extends JFrame implements ActionListener {
             new CustomerManagement().setVisible(true);
 
         } else if (e.getSource() == btnRental) {
-            JOptionPane.showMessageDialog(this, "Rental section clicked.");
-
+            new Rental().setVisible(true);
 
         } else if (e.getSource() == AdminManagement) {
            new AdminManagement(roleID).setVisible(true);
@@ -98,6 +97,7 @@ public class AdminPortal extends JFrame implements ActionListener {
                 this.setVisible(false);
                 new WelcomePage().setVisible(true);
             }
+
         }
     }
 
