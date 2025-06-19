@@ -5,24 +5,27 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionClass {
-    public Connection con;
 
-    public ConnectionClass() {
-        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
-        String user = "sa";
-        String password = "dblab";
+    private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
+    private static final String USER = "sa";
+    private static final String PASSWORD = "dblab";
+    private static Connection connection;
 
-        try {
-            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            con = DriverManager.getConnection(url, user, password);
-            System.out.println("Connected to SQL Server successfully!");
-        } catch (ClassNotFoundException e) {
-            System.out.println("SQL Server Driver not found.");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("Connection failed.");
-            e.printStackTrace();
+    // Static method to get the connection
+    public static Connection getConnection() {
+        if (connection == null) {
+            try {
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+                connection = DriverManager.getConnection(URL, USER, PASSWORD);
+                System.out.println("✅ Connected to SQL Server successfully!");
+            } catch (ClassNotFoundException e) {
+                System.err.println("❌ SQL Server JDBC Driver not found.");
+                e.printStackTrace();
+            } catch (SQLException e) {
+                System.err.println("❌ Connection to SQL Server failed.");
+                e.printStackTrace();
+            }
         }
+        return connection;
     }
-
 }

@@ -5,22 +5,29 @@ import java.awt.*;
 
 public class PaymentPage extends JFrame {
 
-    public PaymentPage(int vehicleID, long amount) {
+    public PaymentPage(int customerID, int vehicleID, int totalBill) {
         setTitle("Payment Page");
-        setSize(400, 200);
+        setSize(400, 250);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        JLabel info = new JLabel("<html><center>Proceeding to payment for<br><b>Vehicle ID: " + vehicleID +
-                "</b><br>Total Amount: <b>PKR " + amount + "</b></center></html>", SwingConstants.CENTER);
-        info.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-
+        JLabel info = new JLabel("<html><center><h2>Payment Summary</h2>" +
+                "<p>Customer ID: " + customerID + "</p>" +
+                "<p>Vehicle ID: " + vehicleID + "</p>" +
+                "<p><b>Total: PKR " + totalBill + "</b></p></center></html>", SwingConstants.CENTER);
         add(info, BorderLayout.CENTER);
 
         JButton payBtn = new JButton("Pay Now");
-        payBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        add(payBtn, BorderLayout.SOUTH);
+        payBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        payBtn.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "💳 Payment successful!");
+            this.dispose(); // Close PaymentPage
+        });
+
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(payBtn);
+        add(buttonPanel, BorderLayout.SOUTH);
 
         setVisible(true);
     }

@@ -133,7 +133,7 @@ public class CustomerManagement extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        try (Connection conn = new ConnectionClass().con) {
+        try (Connection conn = ConnectionClass.getConnection();) {
             if (e.getSource() == addButton) {
                 String username = userNameField.getText().trim();
                 if (username.isEmpty()) {
@@ -260,7 +260,7 @@ public class CustomerManagement extends JFrame implements ActionListener {
 
     private void loadCustomerData() {
         tableModel.setRowCount(0);
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              Statement st = conn.createStatement();
              ResultSet rs = st.executeQuery("SELECT * FROM Customer")) {
             while (rs.next()) {

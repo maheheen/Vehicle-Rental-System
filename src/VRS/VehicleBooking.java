@@ -3,26 +3,28 @@ package VRS;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.*;
 import java.sql.*;
 
 public class VehicleBooking extends JFrame {
 
     public static JTable vehicleTable;
-  //  private JTable vehicleTable;
     private JTextField brandField, modelField, yearField, capacityField, minRateField, maxRateField;
     private JComboBox<String> transmissionCombo, fuelTypeCombo, typeIDCombo;
-    private JButton searchButton;
-    private JButton proceedButton;
-
+    private JButton searchButton, proceedButton;
+    private int selectedVehicleID = -1;
+    private int customerID = 1; // Replace with logged-in customer ID if applicable
 
     public VehicleBooking() {
         setTitle("Vehicle Filter & Booking");
-        setSize(1000, 500);
+        setSize(1100, 550);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
 
-        // Filter panel
-        JPanel filterPanel = new JPanel(new GridLayout(3, 6, 5, 5));
+        // Top Panel for Filters
+        JPanel filterPanel = new JPanel(new GridLayout(3, 6, 10, 10));
+        filterPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         brandField = new JTextField();
         modelField = new JTextField();
@@ -32,32 +34,21 @@ public class VehicleBooking extends JFrame {
         maxRateField = new JTextField();
 
         transmissionCombo = new JComboBox<>(new String[]{"Any", "Automatic", "Manual"});
-        fuelTypeCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});  // Update as per DB
-        typeIDCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});    // Update as per DB
+        fuelTypeCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});  // Adjust if needed
+        typeIDCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});    // Adjust if needed
 
-        filterPanel.add(new JLabel("Brand:"));
-        filterPanel.add(brandField);
-        filterPanel.add(new JLabel("Model:"));
-        filterPanel.add(modelField);
-        filterPanel.add(new JLabel("Make Year:"));
-        filterPanel.add(yearField);
+        filterPanel.add(new JLabel("Brand:"));        filterPanel.add(brandField);
+        filterPanel.add(new JLabel("Model:"));        filterPanel.add(modelField);
+        filterPanel.add(new JLabel("Make Year:"));    filterPanel.add(yearField);
+        filterPanel.add(new JLabel("Seating Capacity:")); filterPanel.add(capacityField);
+        filterPanel.add(new JLabel("Transmission:")); filterPanel.add(transmissionCombo);
+        filterPanel.add(new JLabel("Fuel Type ID:")); filterPanel.add(fuelTypeCombo);
+        filterPanel.add(new JLabel("Type ID:"));      filterPanel.add(typeIDCombo);
+        filterPanel.add(new JLabel("Min Rate:"));     filterPanel.add(minRateField);
+        filterPanel.add(new JLabel("Max Rate:"));     filterPanel.add(maxRateField);
 
-        filterPanel.add(new JLabel("Seating Capacity:"));
-        filterPanel.add(capacityField);
-        filterPanel.add(new JLabel("Transmission:"));
-        filterPanel.add(transmissionCombo);
-        filterPanel.add(new JLabel("FuelTypeID:"));
-        filterPanel.add(fuelTypeCombo);
-
-        filterPanel.add(new JLabel("TypeID:"));
-        filterPanel.add(typeIDCombo);
-        filterPanel.add(new JLabel("Min Rate:"));
-        filterPanel.add(minRateField);
-        filterPanel.add(new JLabel("Max Rate:"));
-        filterPanel.add(maxRateField);
-
-        searchButton = new JButton("Search");
-        searchButton.addActionListener(e -> filterVehicles());
+        searchButton = new JButton("🔍 Search");
+        searchButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(filterPanel, BorderLayout.CENTER);
@@ -65,74 +56,70 @@ public class VehicleBooking extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
-        proceedButton = new JButton("Proceed");
-        proceedButton.addActionListener(e -> openNextPage());
-
-
-        // Table
+        // Vehicle Table
         vehicleTable = new JTable(new DefaultTableModel(new Object[]{
                 "VehicleID", "Brand", "Model", "MakeYear", "SeatingCapacity",
                 "TransmissionType", "TypeID", "FuelTypeID", "Rate"
         }, 0));
         add(new JScrollPane(vehicleTable), BorderLayout.CENTER);
 
-        setVisible(true);
+        // Bottom Panel with Proceed Button
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        proceedButton = new JButton("Proceed to Booking");
+        proceedButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        proceedButton.setEnabled(false);
         bottomPanel.add(proceedButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
+        // Add action listeners
+        searchButton.addActionListener(e -> filterVehicles());
+
+        vehicleTable.addMouseListener(new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = vehicleTable.getSelectedRow();
+                if (selectedRow >= 0) {
+                    selectedVehicleID = (int) vehicleTable.getValueAt(selectedRow, 0);
+                    proceedButton.setEnabled(true);
+                }
+            }
+        });
+
+        proceedButton.addActionListener(e -> {
+            if (selectedVehicleID != -1) {
+                new BookingDetails(customerID, selectedVehicleID);
+                this.dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a vehicle first.");
+            }
+        });
+
+        setVisible(true);
     }
-
-    private void openNextPage() {
-        int selectedRow = vehicleTable.getSelectedRow();
-
-        if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select a vehicle to proceed.");
-            return; // Stop here if nothing is selected
-        }
-
-        // Optional: Get vehicle ID or other data from the selected row
-        int vehicleID = (int) vehicleTable.getValueAt(selectedRow, 0); // Assuming 1st column is VehicleID
-
-        // Pass data to next page (can modify constructor to accept vehicleID)
-        new BookingDetails(vehicleID);
-        dispose(); // Close current frame
-    }
-
-
 
     private void filterVehicles() {
-        ConnectionClass connectionClass= new ConnectionClass();
-        Connection conn = connectionClass.con;
+        Connection conn = ConnectionClass.getConnection();
+        if (conn == null) {
+            JOptionPane.showMessageDialog(this, "Database connection failed!");
+            return;
+        }
 
         String sql = "{call FilterVehicles(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
         try (CallableStatement stmt = conn.prepareCall(sql)) {
-            // GUI input values
-            String brand = brandField.getText().trim();
-            String Model = modelField.getText().trim();
-            String yearText = yearField.getText().trim();
-            String capacityText = capacityField.getText().trim();
-            String transmission = transmissionCombo.getSelectedItem().toString();
-            String fuelText = fuelTypeCombo.getSelectedItem().toString();
-            String typeText = typeIDCombo.getSelectedItem().toString();
-            String minRateText = minRateField.getText().trim();
-            String maxRateText = maxRateField.getText().trim();
-
-            // Set procedure parameters
-            stmt.setString(1, brand.isEmpty() ? null : brand);
-            stmt.setString(2, Model.isEmpty() ? null : Model);
-            stmt.setObject(3, yearText.isEmpty() ? null : Integer.parseInt(yearText), Types.INTEGER);
-            stmt.setObject(4, capacityText.isEmpty() ? null : Integer.parseInt(capacityText), Types.INTEGER);
-            stmt.setString(5, transmission.equalsIgnoreCase("Any") ? null : transmission);
-            stmt.setObject(6, typeText.equalsIgnoreCase("Any") ? null : Integer.parseInt(typeText), Types.INTEGER);
-            stmt.setObject(7, fuelText.equalsIgnoreCase("Any") ? null : Integer.parseInt(fuelText), Types.INTEGER);
-            stmt.setObject(8, minRateText.isEmpty() ? null : Integer.parseInt(minRateText), Types.INTEGER);
-            stmt.setObject(9, maxRateText.isEmpty() ? null : Integer.parseInt(maxRateText), Types.INTEGER);
+            // Read filters
+            stmt.setString(1, getNullable(brandField.getText()));
+            stmt.setString(2, getNullable(modelField.getText()));
+            stmt.setObject(3, parseInteger(yearField.getText()), Types.INTEGER);
+            stmt.setObject(4, parseInteger(capacityField.getText()), Types.INTEGER);
+            stmt.setString(5, transmissionCombo.getSelectedItem().toString().equals("Any") ? null : transmissionCombo.getSelectedItem().toString());
+            stmt.setObject(6, parseIntegerCombo(typeIDCombo), Types.INTEGER);
+            stmt.setObject(7, parseIntegerCombo(fuelTypeCombo), Types.INTEGER);
+            stmt.setObject(8, parseInteger(minRateField.getText()), Types.INTEGER);
+            stmt.setObject(9, parseInteger(maxRateField.getText()), Types.INTEGER);
 
             ResultSet rs = stmt.executeQuery();
             DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
-            model.setRowCount(0); // Clear old results
+            model.setRowCount(0);
 
             while (rs.next()) {
                 model.addRow(new Object[]{
@@ -148,10 +135,31 @@ public class VehicleBooking extends JFrame {
                 });
             }
 
+            if (model.getRowCount() == 0) {
+                JOptionPane.showMessageDialog(this, "No vehicles found.");
+            }
+
         } catch (SQLException ex) {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error loading vehicles: " + ex.getMessage());
         }
+    }
+
+    private String getNullable(String text) {
+        return text.trim().isEmpty() ? null : text.trim();
+    }
+
+    private Integer parseInteger(String text) {
+        try {
+            return text.trim().isEmpty() ? null : Integer.parseInt(text.trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private Integer parseIntegerCombo(JComboBox<String> comboBox) {
+        String value = comboBox.getSelectedItem().toString();
+        return value.equals("Any") ? null : Integer.parseInt(value);
     }
 
     public static void main(String[] args) {

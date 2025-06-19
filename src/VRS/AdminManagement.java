@@ -80,7 +80,7 @@ public class AdminManagement extends JFrame {
     private void connectDB() {
         try {
             ConnectionClass connectionClass = new ConnectionClass();
-            conn = connectionClass.con;
+            conn = ConnectionClass.getConnection();
             if (conn == null) {
                 JOptionPane.showMessageDialog(this, "Connection object is null.");
             }
