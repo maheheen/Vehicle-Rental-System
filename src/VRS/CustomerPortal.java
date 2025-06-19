@@ -32,6 +32,7 @@ public class CustomerPortal extends JFrame implements ActionListener {
 
         viewAvailableVehiclesButton = new JButton("View Available Vehicles");
         bookVehicleButton = new JButton("Book a Vehicle");
+
         viewBookingsButton = new JButton("View My Bookings");
         logoutButton = new JButton("Logout");
 
@@ -84,7 +85,7 @@ public class CustomerPortal extends JFrame implements ActionListener {
         if (source == viewAvailableVehiclesButton) {
             JOptionPane.showMessageDialog(this, "Displaying available vehicles...");
         } else if (source == bookVehicleButton) {
-            JOptionPane.showMessageDialog(this, "Redirecting to booking form...");
+            new VehicleBooking().setVisible(true);
         } else if (source == viewBookingsButton) {
             JOptionPane.showMessageDialog(this, "Showing your bookings...");
         } else if (source == logoutButton) {

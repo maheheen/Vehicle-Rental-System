@@ -192,12 +192,14 @@ public class CarRegistration extends JFrame implements ActionListener {
     }
 
     private void loadComboBoxes() {
+
         // Manually set brands
         String[] brands = {
                 "Toyota", "Honda", "Suzuki", "Kia", "Hyundai",
                 "Nissan", "Daihatsu", "Chevrolet", "MG"
         };
         brandComboBox.setModel(new DefaultComboBoxModel<>(brands));
+
 
         // Manually set fuel types
         fuelTypeComboBox.setModel(new DefaultComboBoxModel<>(new String[]{
@@ -282,7 +284,7 @@ public class CarRegistration extends JFrame implements ActionListener {
     private void loadVehiclesIntoTable() {
         try {
             ConnectionClass connectionClass = new ConnectionClass();
-            Connection conn = connectionClass.con;
+            Connection conn = ConnectionClass.getConnection();
             String sql = "SELECT RegNumber, Brand, Model, MakeYear, SeatingCapacity, TransmissionType, FuelTypeID, TypeID, Rate, Available FROM Vehicle";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
@@ -325,7 +327,7 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         try {
             ConnectionClass connectionClass = new ConnectionClass();
-            Connection conn = connectionClass.con;
+            Connection conn = ConnectionClass.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, regNo);
@@ -357,7 +359,7 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         try {
             ConnectionClass connectionClass = new ConnectionClass();
-            Connection conn = connectionClass.con;
+            Connection conn = ConnectionClass.getConnection();;
             PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, brand);
@@ -406,7 +408,7 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         try {
             ConnectionClass connectionClass = new ConnectionClass();
-            Connection conn = connectionClass.con;
+            Connection conn = ConnectionClass.getConnection();;
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, regNo);
             int rowsDeleted = pstmt.executeUpdate();

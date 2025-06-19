@@ -117,7 +117,7 @@ public class Login extends JFrame implements ActionListener {
         try{
         String query = "SELECT RoleID FROM UserLogin WHERE Username = ? AND PasswordHash = ?";
         ConnectionClass connectionClass = new ConnectionClass();
-        conn = connectionClass.con;
+        conn = ConnectionClass.getConnection();
 
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, username);

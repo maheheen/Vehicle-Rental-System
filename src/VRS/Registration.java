@@ -235,7 +235,8 @@ public class Registration extends JFrame implements ActionListener {
 
     private void saveCustomerData() {
         ConnectionClass connectionClass = new ConnectionClass();
-        conn = connectionClass.con;
+        conn = ConnectionClass.getConnection();
+
 
         try {
 
