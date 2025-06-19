@@ -2,8 +2,7 @@ package VRS;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -13,6 +12,7 @@ public class BookingDetails extends JFrame {
     private JTextField startDateField, returnDateField;
     private JLabel billLabel;
     private JButton proceedButton;
+
     private int customerID;
     private int vehicleID;
     private int ratePerDay;
@@ -32,12 +32,10 @@ public class BookingDetails extends JFrame {
 
         ratePerDay = getRateFromTable(vehicleID);
 
-        // Header
         JLabel title = new JLabel("Vehicle Booking Summary", SwingConstants.CENTER);
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         add(title, BorderLayout.NORTH);
 
-        // Form panel
         JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
@@ -50,7 +48,6 @@ public class BookingDetails extends JFrame {
         formPanel.add(returnDateField);
 
         JButton billButton = new JButton("Generate Bill");
-        billButton.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         formPanel.add(billButton);
 
         billLabel = new JLabel("Total Bill: PKR 0", SwingConstants.LEFT);
@@ -59,15 +56,13 @@ public class BookingDetails extends JFrame {
 
         add(formPanel, BorderLayout.CENTER);
 
-        // Bottom panel
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        proceedButton = new JButton("Confirm & Save Booking");
+        proceedButton = new JButton("Confirm & Proceed to Payment");
         proceedButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
         proceedButton.setEnabled(false);
         bottomPanel.add(proceedButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Actions
         billButton.addActionListener(e -> generateBill());
         proceedButton.addActionListener(e -> saveBookingToDatabase());
 
@@ -111,8 +106,12 @@ public class BookingDetails extends JFrame {
     private void saveBookingToDatabase() {
         Connection conn = ConnectionClass.getConnection();
         String sql = "INSERT INTO Booking (CustomerID, VehicleID, StartDate, ReturnDate, TotalDays, TotalAmount) VALUES (?, ?, ?, ?, ?, ?)";
+        String updateVehicle = "UPDATE Vehicle SET Available = 0 WHERE VehicleID = ?";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                PreparedStatement updateStmt = conn.prepareStatement(updateVehicle)
+        ) {
             stmt.setInt(1, customerID);
             stmt.setInt(2, vehicleID);
             stmt.setDate(3, java.sql.Date.valueOf(startDate));
@@ -121,18 +120,18 @@ public class BookingDetails extends JFrame {
             stmt.setInt(6, (int) totalBill);
 
             int rowsInserted = stmt.executeUpdate();
+
             if (rowsInserted > 0) {
+                updateStmt.setInt(1, vehicleID);
+                updateStmt.executeUpdate();
+
                 JOptionPane.showMessageDialog(this, "✅ Booking saved successfully!");
-
-                // 👇 Open Payment Page
-                new PaymentPage(customerID, vehicleID, (int) totalBill);
-
-                this.dispose(); // Close BookingDetails window
-
-
-        } else {
+                new PaymentPage(customerID, vehicleID, (int) totalBill); // Proceed to payment
+                this.dispose();
+            } else {
                 JOptionPane.showMessageDialog(this, "❌ Booking failed to save.");
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error saving booking: " + e.getMessage());
