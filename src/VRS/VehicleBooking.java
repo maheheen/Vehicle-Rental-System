@@ -102,11 +102,8 @@ public class VehicleBooking extends JFrame {
 
 
     private void filterVehicles() {
-        Connection conn = ConnectionClass.getConnection();
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Database connection failed!");
-            return;
-        }
+        ConnectionClass connectionClass= new ConnectionClass();
+        Connection conn = connectionClass.con;
 
         String sql = "{call FilterVehicles(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
 
