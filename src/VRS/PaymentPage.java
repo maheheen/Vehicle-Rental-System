@@ -4,11 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.time.LocalDate;
 
 public class PaymentPage extends JFrame {
 
-    private JTextField cardNumberField, nameField, expiryField, cvvField;
+    private JTextField cardNumberField, nameField, expiryMonthField, expiryYearField;
     private JLabel amountLabel;
     private JButton payButton;
 
@@ -22,7 +21,7 @@ public class PaymentPage extends JFrame {
         this.amount = amount;
 
         setTitle("Enter Payment Details");
-        setSize(400, 350);
+        setSize(400, 300);
         setLayout(new GridLayout(6, 2, 10, 10));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -35,13 +34,13 @@ public class PaymentPage extends JFrame {
         nameField = new JTextField();
         add(nameField);
 
-        add(new JLabel("Expiry Date (YYYY-MM-DD):"));
-        expiryField = new JTextField();
-        add(expiryField);
+        add(new JLabel("Expiry Month (1-12):"));
+        expiryMonthField = new JTextField();
+        add(expiryMonthField);
 
-        add(new JLabel("CVV:"));
-        cvvField = new JTextField();
-        add(cvvField);
+        add(new JLabel("Expiry Year (YYYY):"));
+        expiryYearField = new JTextField();
+        add(expiryYearField);
 
         add(new JLabel("Amount:"));
         amountLabel = new JLabel("PKR " + amount);
@@ -59,24 +58,49 @@ public class PaymentPage extends JFrame {
     private void processPayment() {
         String cardNumber = cardNumberField.getText().trim();
         String name = nameField.getText().trim();
-        String expiry = expiryField.getText().trim();
-        String cvv = cvvField.getText().trim();
+        String expMonthStr = expiryMonthField.getText().trim();
+        String expYearStr = expiryYearField.getText().trim();
 
-        if (cardNumber.isEmpty() || name.isEmpty() || expiry.isEmpty() || cvv.isEmpty()) {
+        if (cardNumber.isEmpty() || name.isEmpty() || expMonthStr.isEmpty() || expYearStr.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Please fill in all fields.");
             return;
         }
 
+        int expiryMonth, expiryYear;
         try {
-            Connection conn = ConnectionClass.getConnection();
-            String sql = "INSERT INTO Payment (CustomerID, CardNumber, CardHolderName, ExpiryDate, CVV, Amount, Status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            expiryMonth = Integer.parseInt(expMonthStr);
+            expiryYear = Integer.parseInt(expYearStr);
+
+            if (expiryMonth < 1 || expiryMonth > 12) {
+                throw new IllegalArgumentException("Invalid expiry month.");
+            }
+            if (expiryYear < java.time.Year.now().getValue()) {
+                throw new IllegalArgumentException("Expiry year must be current or future.");
+            }
+        }  catch (NumberFormatException e) {
+        JOptionPane.showMessageDialog(this, "Expiry month and year must be numeric.");
+        return;
+    } catch (IllegalArgumentException e) {
+        JOptionPane.showMessageDialog(this, e.getMessage() != null ? e.getMessage() : "Invalid expiry date.");
+        return;
+    }
+
+    String maskedCard = maskCard(cardNumber);
+        if (maskedCard == null) {
+            JOptionPane.showMessageDialog(this, "Invalid card number. Must be at least 4 digits.");
+            return;
+        }
+
+        try (Connection conn = ConnectionClass.getConnection()) {
+            String sql = "INSERT INTO Payment (CustomerID, MaskedCardNumber, CardHolderName, ExpiryMonth, ExpiryYear, Amount, Status) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             PreparedStatement stmt = conn.prepareStatement(sql);
             stmt.setInt(1, customerID);
-            stmt.setString(2, cardNumber);
+            stmt.setString(2, maskedCard);
             stmt.setString(3, name);
-            stmt.setDate(4, java.sql.Date.valueOf(expiry));
-            stmt.setString(5, cvv);
+            stmt.setInt(4, expiryMonth);
+            stmt.setInt(5, expiryYear);
             stmt.setInt(6, amount);
             stmt.setString(7, "Paid");
 
@@ -93,5 +117,12 @@ public class PaymentPage extends JFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
+    }
+
+    private String maskCard(String cardNumber) {
+        // Keep only last 4 digits
+        if (cardNumber.length() < 4) return null;
+        String last4 = cardNumber.substring(cardNumber.length() - 4);
+        return "**** **** **** " + last4;
     }
 }
