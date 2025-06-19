@@ -9,6 +9,7 @@ import java.sql.*;
 public class Registration extends JFrame implements ActionListener {
     JLabel titleLabel, firstNameLabel, lastNameLabel, phoneNumberLabel, emailLabel, drivingLicenseLabel, NationalIDLabel, uploadImageLabel, passwordLabel, RetypePasswordLabel, addressLabel,usernameLabel;
     JTextField firstNameField, lastNameField, phoneNumberField, EmailField, CNICField, drivingLicenseField, addressField, usernameField;
+
     JPasswordField passwordField1, passwordField2;
     JButton uploadImage, doneButton, backButton;
     Font titleFont, labelFont;

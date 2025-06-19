@@ -8,7 +8,7 @@ public class ConnectionClass {
     public Connection con;
 
     public ConnectionClass() {
-        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
+        String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem_Edited;encrypt=true;trustServerCertificate=true";
         String user = "sa";
         String password = "dblab";
 

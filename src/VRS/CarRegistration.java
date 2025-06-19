@@ -9,7 +9,10 @@ import java.util.Vector;
 
 public class CarRegistration extends JFrame implements ActionListener {
 
-    JTextField regNoField, brandField, modelField, yearField, seatingField, rateField;
+    JTextField regNoField, yearField, seatingField, rateField;
+
+    JComboBox<String> brandComboBox, modelComboBox;
+
     JComboBox<String> transmissionBox, fuelTypeComboBox, vehicleTypeComboBox, availabilityBox;
     JTable carTable;
     DefaultTableModel tableModel;
@@ -30,77 +33,106 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         formPanel.add(new JLabel("Car Reg No")).setBounds(20, 20, 100, 25);
         regNoField = new JTextField();
+        regNoField.setDocument(new javax.swing.text.PlainDocument() {
+            @Override
+            public void insertString(int offset, String str, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                if (str == null) return;
+
+                // Combine existing and new text
+                String text = getText(0, getLength());
+                String result = text.substring(0, offset) + str + text.substring(offset);
+
+                // Only allow up to 7 characters (e.g., ABC-123)
+                if (result.length() > 7) {
+                    Toolkit.getDefaultToolkit().beep();
+                    return;
+                }
+
+                // Allow pattern like ABC, ABC-, ABC-1, ABC-12, ABC-123
+                if (!result.matches("[A-Z]{0,3}-?[0-9]{0,3}")) {
+                    Toolkit.getDefaultToolkit().beep();
+                    return;
+                }
+
+                // Allow input, force uppercase
+                super.insertString(offset, str.toUpperCase(), attr);
+            }
+        });
+
+
+
         regNoField.setBounds(150, 20, 200, 25);
         formPanel.add(regNoField);
 
+
         formPanel.add(new JLabel("Brand")).setBounds(20, 50, 100, 25);
-        brandField = new JTextField();
-        brandField.setBounds(150, 50, 200, 25);
-        formPanel.add(brandField);
+        brandComboBox = new JComboBox<>();
+        brandComboBox.setBounds(150, 50, 200, 25);
+        formPanel.add(brandComboBox);
 
-        formPanel.add(new JLabel("Model")).setBounds(20, 110, 100, 25);
-        modelField = new JTextField();
-        modelField.setBounds(150, 110, 200, 25);
-        formPanel.add(modelField);
+        formPanel.add(new JLabel("Model")).setBounds(20, 80, 100, 25);
+        modelComboBox = new JComboBox<>();
+        modelComboBox.setBounds(150, 80, 200, 25);
+        formPanel.add(modelComboBox);
 
-        formPanel.add(new JLabel("Year")).setBounds(20, 140, 100, 25);
+        formPanel.add(new JLabel("Year")).setBounds(20, 110, 100, 25);
         yearField = new JTextField();
-        yearField.setBounds(150, 140, 200, 25);
+        yearField.setBounds(150, 110, 200, 25);
         formPanel.add(yearField);
 
-        formPanel.add(new JLabel("Seating Capacity")).setBounds(20, 170, 120, 25);
+        formPanel.add(new JLabel("Seating Capacity")).setBounds(20, 150, 120, 25);
         seatingField = new JTextField();
-        seatingField.setBounds(150, 170, 200, 25);
+        seatingField.setBounds(150, 150, 200, 25);
         formPanel.add(seatingField);
 
-        formPanel.add(new JLabel("Transmission")).setBounds(20, 200, 100, 25);
+        formPanel.add(new JLabel("Transmission")).setBounds(20, 180, 100, 25);
         transmissionBox = new JComboBox<>(new String[]{"Automatic", "Manual"});
-        transmissionBox.setBounds(150, 200, 200, 25);
+        transmissionBox.setBounds(150, 180, 200, 25);
         formPanel.add(transmissionBox);
 
-        formPanel.add(new JLabel("Fuel Type")).setBounds(20, 230, 100, 25);
+        formPanel.add(new JLabel("Fuel Type")).setBounds(20, 210, 100, 25);
         fuelTypeComboBox = new JComboBox<>();
-        fuelTypeComboBox.setBounds(150, 230, 200, 25);
+        fuelTypeComboBox.setBounds(150, 210, 200, 25);
         formPanel.add(fuelTypeComboBox);
 
-        formPanel.add(new JLabel("Vehicle Type")).setBounds(20, 260, 120, 25);
+        formPanel.add(new JLabel("Vehicle Type")).setBounds(20, 240, 120, 25);
         vehicleTypeComboBox = new JComboBox<>();
-        vehicleTypeComboBox.setBounds(150, 260, 200, 25);
+        vehicleTypeComboBox.setBounds(150, 240, 200, 25);
         formPanel.add(vehicleTypeComboBox);
 
-        formPanel.add(new JLabel("Rate")).setBounds(20, 290, 100, 25);
+        formPanel.add(new JLabel("Rate")).setBounds(20, 270, 270, 25);
         rateField = new JTextField();
-        rateField.setBounds(150, 290, 200, 25);
+        rateField.setBounds(150, 270, 200, 25);
         formPanel.add(rateField);
 
-        formPanel.add(new JLabel("Available")).setBounds(20, 320, 100, 25);
+        formPanel.add(new JLabel("Available")).setBounds(20, 300, 100, 25);
         availabilityBox = new JComboBox<>(new String[]{"Yes", "No"});
-        availabilityBox.setBounds(150, 320, 200, 25);
+        availabilityBox.setBounds(150, 300, 200, 25);
         formPanel.add(availabilityBox);
 
         // Buttons
         addButton = new JButton("Add");
-        addButton.setBounds(20, 380, 70, 30);
+        addButton.setBounds(20, 360, 70, 30);
         formPanel.add(addButton);
 
         cancelButton = new JButton("Cancel");
-        cancelButton.setBounds(100, 380, 80, 30);
+        cancelButton.setBounds(100, 360, 80, 30);
         formPanel.add(cancelButton);
 
         editButton = new JButton("Edit");
-        editButton.setBounds(190, 380, 70, 30);
+        editButton.setBounds(190, 360, 70, 30);
         formPanel.add(editButton);
 
         deleteButton = new JButton("Delete");
-        deleteButton.setBounds(270, 380, 75, 30);
+        deleteButton.setBounds(270, 360, 75, 30);
         formPanel.add(deleteButton);
 
         updateButton = new JButton("Update");
-        updateButton.setBounds(150, 420, 80, 30);
+        updateButton.setBounds(150, 410, 80, 30);
         formPanel.add(updateButton);
 
         backButton = new JButton("Back");
-        backButton.setBounds(250, 420, 80, 30);
+        backButton.setBounds(250, 410, 80, 30);
         formPanel.add(backButton);
 
         add(formPanel);
@@ -109,10 +141,31 @@ public class CarRegistration extends JFrame implements ActionListener {
                 "RegNo", "Brand", "Model", "Year", "Seating", "Transmission",
                 "FuelTypeID", "VehicleTypeID", "Rate", "Available"
         }, 0);
+
         carTable = new JTable(tableModel);
-        JScrollPane tableScroll = new JScrollPane(carTable);
-        tableScroll.setBounds(420, 20, 400, 500);
+        carTable.setAutoResizeMode(JTable.AUTO_RESIZE_OFF); // Enables horizontal scroll
+        carTable.setFillsViewportHeight(true);
+
+        JScrollPane tableScroll = new JScrollPane(carTable,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        tableScroll.setBounds(420, 20, 850, 500); // Increase width here
         add(tableScroll);
+
+
+        carTable.getColumnModel().getColumn(0).setPreferredWidth(100);  // RegNo
+        carTable.getColumnModel().getColumn(1).setPreferredWidth(100);  // Brand
+        carTable.getColumnModel().getColumn(2).setPreferredWidth(120);  // Model
+        carTable.getColumnModel().getColumn(3).setPreferredWidth(60);   // Year
+        carTable.getColumnModel().getColumn(4).setPreferredWidth(40);   // Seating
+        carTable.getColumnModel().getColumn(5).setPreferredWidth(100);  // Transmission
+        carTable.getColumnModel().getColumn(6).setPreferredWidth(100);  // FuelTypeID
+        carTable.getColumnModel().getColumn(7).setPreferredWidth(120);  // VehicleTypeID
+        carTable.getColumnModel().getColumn(8).setPreferredWidth(80);   // Rate
+        carTable.getColumnModel().getColumn(9).setPreferredWidth(80);   // Available
+
+
+
 
         loadComboBoxes();
         loadVehiclesIntoTable();
@@ -123,39 +176,105 @@ public class CarRegistration extends JFrame implements ActionListener {
         cancelButton.addActionListener(this);
         backButton.addActionListener(this);
         updateButton.addActionListener(this);
+
+        regNoField.addActionListener(e -> brandComboBox.requestFocus());
+        brandComboBox.addActionListener(e -> modelComboBox.requestFocus());
+        modelComboBox.addActionListener(e -> yearField.requestFocus());
+        yearField.addActionListener(e -> seatingField.requestFocus());
+        seatingField.addActionListener(e -> transmissionBox.requestFocus());
+        transmissionBox.addActionListener(e -> fuelTypeComboBox.requestFocus());
+        fuelTypeComboBox.addActionListener(e -> vehicleTypeComboBox.requestFocus());
+        vehicleTypeComboBox.addActionListener(e -> rateField.requestFocus());
+        rateField.addActionListener(e -> availabilityBox.requestFocus());
+        availabilityBox.addActionListener(e -> addButton.requestFocus());
+
     }
 
     private void loadComboBoxes() {
-        ConnectionClass connectionClass = new ConnectionClass();
-        Connection conn = connectionClass.con;
+        // Manually set brands
+        String[] brands = {
+                "Toyota", "Honda", "Suzuki", "Kia", "Hyundai",
+                "Nissan", "Daihatsu", "Chevrolet", "MG"
+        };
+        brandComboBox.setModel(new DefaultComboBoxModel<>(brands));
 
-        try {
-            Statement stmt = conn.createStatement();
+        // Manually set fuel types
+        fuelTypeComboBox.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Petrol", "Diesel", "Hybrid", "Electric"
+        }));
 
-            // Load Fuel Types
-            ResultSet rs = stmt.executeQuery("SELECT FuelTypeID, FuelName FROM FuelType");
-            Vector<String> fuelTypes = new Vector<>();
-            while (rs.next()) {
-                fuelTypes.add(rs.getString("FuelName"));
+        // Manually set vehicle types
+        vehicleTypeComboBox.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Sedan", "Hatchback", "SUV", "Van", "Pickup Truck"
+        }));
+
+        // Load models when a brand is selected
+        brandComboBox.addActionListener(e -> {
+            String selectedBrand = (String) brandComboBox.getSelectedItem();
+            if (selectedBrand != null) {
+                loadModelsForBrand(selectedBrand);
             }
-            fuelTypeComboBox.setModel(new DefaultComboBoxModel<>(fuelTypes));
-            rs.close();
+        });
 
-            // Load Vehicle Types
-            rs = stmt.executeQuery("SELECT TypeID, TypeName FROM VehicleType");
-            Vector<String> vehicleTypes = new Vector<>();
-            while (rs.next()) {
-                vehicleTypes.add(rs.getString("TypeName"));
-            }
-            vehicleTypeComboBox.setModel(new DefaultComboBoxModel<>(vehicleTypes));
-            rs.close();
+        // Trigger initial model load
+        if (brandComboBox.getItemCount() > 0) {
+            brandComboBox.setSelectedIndex(0);
+        }
+    }
 
-            stmt.close();
-            conn.close();
+    private void loadModelsForBrand(String brand) {
+        modelComboBox.removeAllItems();
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Failed to load FuelType or VehicleType data from DB");
+        switch (brand) {
+            case "Toyota":
+                modelComboBox.addItem("Corolla");
+                modelComboBox.addItem("Yaris");
+                modelComboBox.addItem("Hiace");
+                modelComboBox.addItem("Fortuner");
+                modelComboBox.addItem("Land Cruiser");
+                break;
+            case "Honda":
+                modelComboBox.addItem("Civic");
+                modelComboBox.addItem("City");
+                modelComboBox.addItem("BR-V");
+                modelComboBox.addItem("Vezel");
+                modelComboBox.addItem("Accord");
+                modelComboBox.addItem("Elan");
+                break;
+            case "Suzuki":
+                modelComboBox.addItem("WagonR");
+                modelComboBox.addItem("Alto");
+                modelComboBox.addItem("Cultus");
+                modelComboBox.addItem("Mehran");
+                modelComboBox.addItem("Swift");
+                modelComboBox.addItem("Baleno");
+                break;
+            case "Kia":
+                modelComboBox.addItem("Sportage");
+                modelComboBox.addItem("Stonic");
+                modelComboBox.addItem("Picanto");
+                break;
+            case "Hyundai":
+                modelComboBox.addItem("Tucson");
+                modelComboBox.addItem("Elantra");
+                modelComboBox.addItem("Sonata");
+                break;
+            case "Nissan":
+                modelComboBox.addItem("Dayz");
+                modelComboBox.addItem("Sunny");
+                break;
+            case "Daihatsu":
+                modelComboBox.addItem("Mira");
+                break;
+            case "Chevrolet":
+                modelComboBox.addItem("Spark");
+                break;
+            case "MG":
+                modelComboBox.addItem("HS");
+                modelComboBox.addItem("ZS EV");
+                break;
+            default:
+                modelComboBox.addItem("Unknown Model");
         }
     }
 
@@ -270,8 +389,8 @@ public class CarRegistration extends JFrame implements ActionListener {
 
     private void clearForm() {
         regNoField.setText("");
-        brandField.setText("");
-        modelField.setText("");
+        brandComboBox.setSelectedIndex(0);
+        modelComboBox.setSelectedIndex(0);
         yearField.setText("");
         seatingField.setText("");
         rateField.setText("");
@@ -310,8 +429,8 @@ public class CarRegistration extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == addButton) {
             String regNo = regNoField.getText().trim();
-            String brand = brandField.getText().trim();
-            String model = modelField.getText().trim();
+            String brand = (String) brandComboBox.getSelectedItem();
+            String model = (String) modelComboBox.getSelectedItem();
             String year = yearField.getText().trim();
             String seating = seatingField.getText().trim();
             String transmission = (String) transmissionBox.getSelectedItem();
@@ -326,30 +445,58 @@ public class CarRegistration extends JFrame implements ActionListener {
                 return;
             }
 
-            saveVehicleToDB(regNo, brand, model, year, seating, transmission,
-                    fuelTypeID, vehicleTypeID, rate, available);
+            try {
+                ConnectionClass connectionClass = new ConnectionClass();
+                Connection conn = connectionClass.con;
 
-            Vector<Object> row = new Vector<>();
-            row.add(regNo);
-            row.add(brand);
-            row.add(model);
-            row.add(Integer.parseInt(year));
-            row.add(Integer.parseInt(seating));
-            row.add(transmission);
-            row.add(fuelTypeID);
-            row.add(vehicleTypeID);
-            row.add(Double.parseDouble(rate));
-            row.add(available);
+                // Check if RegNumber already exists
+                PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Vehicle WHERE RegNumber = ?");
+                checkStmt.setString(1, regNo);
+                ResultSet rs = checkStmt.executeQuery();
+                rs.next();
 
-            tableModel.addRow(row);
-            clearForm();
+                if (rs.getInt(1) > 0) {
+                    JOptionPane.showMessageDialog(this, "A vehicle with this registration number already exists!");
+                    rs.close();
+                    checkStmt.close();
+                    conn.close();
+                    return;
+                }
+
+                rs.close();
+                checkStmt.close();
+
+                // If not exists, then insert
+                saveVehicleToDB(regNo, brand, model, year, seating, transmission,
+                        fuelTypeID, vehicleTypeID, rate, available);
+
+                Vector<Object> row = new Vector<>();
+                row.add(regNo);
+                row.add(brand);
+                row.add(model);
+                row.add(Integer.parseInt(year));
+                row.add(Integer.parseInt(seating));
+                row.add(transmission);
+                row.add(fuelTypeID);
+                row.add(vehicleTypeID);
+                row.add(Double.parseDouble(rate));
+                row.add(available);
+
+                tableModel.addRow(row);
+                clearForm();
+                conn.close();
+
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "Error checking for duplicate vehicle.");
+            }
 
         } else if (e.getSource() == editButton) {
             int selectedRow = carTable.getSelectedRow();
             if (selectedRow >= 0) {
                 regNoField.setText(tableModel.getValueAt(selectedRow, 0).toString());
-                brandField.setText(tableModel.getValueAt(selectedRow, 1).toString());
-                modelField.setText(tableModel.getValueAt(selectedRow, 2).toString());
+                brandComboBox.setSelectedItem(tableModel.getValueAt(selectedRow, 1).toString());
+                modelComboBox.setSelectedItem(tableModel.getValueAt(selectedRow, 2).toString());
                 yearField.setText(tableModel.getValueAt(selectedRow, 3).toString());
                 seatingField.setText(tableModel.getValueAt(selectedRow, 4).toString());
                 transmissionBox.setSelectedItem(tableModel.getValueAt(selectedRow, 5).toString());
@@ -363,8 +510,8 @@ public class CarRegistration extends JFrame implements ActionListener {
 
         } else if (e.getSource() == updateButton) {
             String regNo = regNoField.getText().trim();
-            String brand = brandField.getText().trim();
-            String model = modelField.getText().trim();
+            String brand = (String) brandComboBox.getSelectedItem();
+            String model = (String) modelComboBox.getSelectedItem();
             String year = yearField.getText().trim();
             String seating = seatingField.getText().trim();
             String transmission = (String) transmissionBox.getSelectedItem();
@@ -414,7 +561,7 @@ public class CarRegistration extends JFrame implements ActionListener {
             clearForm();
         } else if (e.getSource() == backButton) {
             this.setVisible(false);
-            new AdminPortal().setVisible(true);
+            new AdminPortal(2).setVisible(true);
         }
     }
 
