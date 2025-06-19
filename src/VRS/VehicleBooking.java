@@ -9,7 +9,8 @@ import java.sql.*;
 public class VehicleBooking extends JFrame {
 
     public static JTable vehicleTable;
-    private JTextField brandField, modelField, yearField, capacityField, minRateField, maxRateField;
+    private JComboBox<String> brandField, modelField;
+    private JTextField yearField, capacityField, minRateField, maxRateField;
     private JComboBox<String> transmissionCombo, fuelTypeCombo, typeIDCombo;
     private JButton searchButton, proceedButton;
     private int selectedVehicleID = -1;
@@ -26,24 +27,24 @@ public class VehicleBooking extends JFrame {
         JPanel filterPanel = new JPanel(new GridLayout(3, 6, 10, 10));
         filterPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        brandField = new JTextField();
-        modelField = new JTextField();
+        brandField = new JComboBox<>();
+        modelField = new JComboBox<>();
         yearField = new JTextField();
         capacityField = new JTextField();
         minRateField = new JTextField();
         maxRateField = new JTextField();
 
         transmissionCombo = new JComboBox<>(new String[]{"Any", "Automatic", "Manual"});
-        fuelTypeCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});  // Adjust if needed
-        typeIDCombo = new JComboBox<>(new String[]{"Any", "1", "2", "3"});    // Adjust if needed
+        fuelTypeCombo = new JComboBox<>();
+        typeIDCombo = new JComboBox<>();
 
         filterPanel.add(new JLabel("Brand:"));        filterPanel.add(brandField);
         filterPanel.add(new JLabel("Model:"));        filterPanel.add(modelField);
         filterPanel.add(new JLabel("Make Year:"));    filterPanel.add(yearField);
         filterPanel.add(new JLabel("Seating Capacity:")); filterPanel.add(capacityField);
         filterPanel.add(new JLabel("Transmission:")); filterPanel.add(transmissionCombo);
-        filterPanel.add(new JLabel("Fuel Type ID:")); filterPanel.add(fuelTypeCombo);
-        filterPanel.add(new JLabel("Type ID:"));      filterPanel.add(typeIDCombo);
+        filterPanel.add(new JLabel("Fuel Type:"));    filterPanel.add(fuelTypeCombo);
+        filterPanel.add(new JLabel("Vehicle Type:")); filterPanel.add(typeIDCombo);
         filterPanel.add(new JLabel("Min Rate:"));     filterPanel.add(minRateField);
         filterPanel.add(new JLabel("Max Rate:"));     filterPanel.add(maxRateField);
 
@@ -59,7 +60,7 @@ public class VehicleBooking extends JFrame {
         // Vehicle Table
         vehicleTable = new JTable(new DefaultTableModel(new Object[]{
                 "VehicleID", "Brand", "Model", "MakeYear", "SeatingCapacity",
-                "TransmissionType", "TypeID", "FuelTypeID", "Rate"
+                "TransmissionType", "VehicleType", "FuelType", "Rate"
         }, 0));
         add(new JScrollPane(vehicleTable), BorderLayout.CENTER);
 
@@ -71,7 +72,7 @@ public class VehicleBooking extends JFrame {
         bottomPanel.add(proceedButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Add action listeners
+        // Action Listeners
         searchButton.addActionListener(e -> filterVehicles());
 
         vehicleTable.addMouseListener(new MouseAdapter() {
@@ -86,57 +87,155 @@ public class VehicleBooking extends JFrame {
 
         proceedButton.addActionListener(e -> {
             if (selectedVehicleID != -1) {
-                new BookingDetails(customerID, selectedVehicleID);
+                int selectedRow = vehicleTable.getSelectedRow();
+                int amount = (int) vehicleTable.getValueAt(selectedRow, 8); // Rate column
+
+                new PaymentPage(customerID, selectedVehicleID, amount);
                 this.dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Please select a vehicle first.");
             }
         });
 
+        loadDropdowns();
         setVisible(true);
     }
 
-    private void filterVehicles() {
-        Connection conn = ConnectionClass.getConnection();
-        if (conn == null) {
-            JOptionPane.showMessageDialog(this, "Database connection failed!");
-            return;
-        }
+    private void loadDropdowns() {
+        brandField.addItem("Any");
+        modelField.addItem("Any");
+        fuelTypeCombo.addItem("Any");
+        typeIDCombo.addItem("Any");
 
-        String sql = "{call FilterVehicles(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+        try (Connection conn = ConnectionClass.getConnection()) {
+            Statement stmt = conn.createStatement();
 
-        try (CallableStatement stmt = conn.prepareCall(sql)) {
-            // Read filters
-            stmt.setString(1, getNullable(brandField.getText()));
-            stmt.setString(2, getNullable(modelField.getText()));
-            stmt.setObject(3, parseInteger(yearField.getText()), Types.INTEGER);
-            stmt.setObject(4, parseInteger(capacityField.getText()), Types.INTEGER);
-            stmt.setString(5, transmissionCombo.getSelectedItem().toString().equals("Any") ? null : transmissionCombo.getSelectedItem().toString());
-            stmt.setObject(6, parseIntegerCombo(typeIDCombo), Types.INTEGER);
-            stmt.setObject(7, parseIntegerCombo(fuelTypeCombo), Types.INTEGER);
-            stmt.setObject(8, parseInteger(minRateField.getText()), Types.INTEGER);
-            stmt.setObject(9, parseInteger(maxRateField.getText()), Types.INTEGER);
-
-            ResultSet rs = stmt.executeQuery();
-            DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
-            model.setRowCount(0);
-
+            // Brands
+            ResultSet rs = stmt.executeQuery("SELECT DISTINCT Brand FROM Vehicle ORDER BY Brand");
             while (rs.next()) {
-                model.addRow(new Object[]{
-                        rs.getInt("VehicleID"),
-                        rs.getString("Brand"),
-                        rs.getString("Model"),
-                        rs.getInt("MakeYear"),
-                        rs.getInt("SeatingCapacity"),
-                        rs.getString("TransmissionType"),
-                        rs.getInt("TypeID"),
-                        rs.getInt("FuelTypeID"),
-                        rs.getInt("Rate")
-                });
+                brandField.addItem(rs.getString("Brand"));
             }
 
-            if (model.getRowCount() == 0) {
-                JOptionPane.showMessageDialog(this, "No vehicles found.");
+            // Fuel Types
+            rs = stmt.executeQuery("SELECT FuelTypeID, FuelName FROM FuelType ORDER BY FuelName");
+            while (rs.next()) {
+                fuelTypeCombo.addItem(rs.getInt("FuelTypeID") + " - " + rs.getString("FuelName"));
+            }
+
+            // Vehicle Types
+            rs = stmt.executeQuery("SELECT TypeID, TypeName FROM VehicleType ORDER BY TypeName");
+            while (rs.next()) {
+                typeIDCombo.addItem(rs.getInt("TypeID") + " - " + rs.getString("TypeName"));
+            }
+
+            rs.close();
+            stmt.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        brandField.addActionListener(e -> {
+            String brand = brandField.getSelectedItem().toString();
+            updateModelDropdown(brand.equals("Any") ? null : brand);
+        });
+
+        updateModelDropdown(null);
+    }
+
+    private void updateModelDropdown(String brandFilter) {
+        modelField.removeAllItems();
+        modelField.addItem("Any");
+
+        try (Connection conn = ConnectionClass.getConnection()) {
+            String sql = "SELECT DISTINCT Model FROM Vehicle" + (brandFilter != null ? " WHERE Brand = ?" : "");
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            if (brandFilter != null) stmt.setString(1, brandFilter);
+
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                modelField.addItem(rs.getString("Model"));
+            }
+
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void filterVehicles() {
+        try (Connection conn = ConnectionClass.getConnection()) {
+            if (conn == null) {
+                JOptionPane.showMessageDialog(this, "Database connection failed!");
+                return;
+            }
+
+            String sql = "SELECT v.VehicleID, v.Brand, v.Model, v.MakeYear, v.SeatingCapacity, " +
+                    "v.TransmissionType, vt.TypeName, ft.FuelName, v.Rate " +
+                    "FROM Vehicle v " +
+                    "LEFT JOIN FuelType ft ON v.FuelTypeID = ft.FuelTypeID " +
+                    "LEFT JOIN VehicleType vt ON v.TypeID = vt.TypeID " +
+                    "WHERE (? IS NULL OR v.Brand = ?) " +
+                    "AND (? IS NULL OR v.Model = ?) " +
+                    "AND (? IS NULL OR v.MakeYear = ?) " +
+                    "AND (? IS NULL OR v.SeatingCapacity = ?) " +
+                    "AND (? IS NULL OR v.TransmissionType = ?) " +
+                    "AND (? IS NULL OR v.TypeID = ?) " +
+                    "AND (? IS NULL OR v.FuelTypeID = ?) " +
+                    "AND (? IS NULL OR v.Rate >= ?) " +
+                    "AND (? IS NULL OR v.Rate <= ?)";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, getNullableCombo(brandField));
+                stmt.setString(2, getNullableCombo(brandField));
+
+                stmt.setString(3, getNullableCombo(modelField));
+                stmt.setString(4, getNullableCombo(modelField));
+
+                setNullableInt(stmt, 5, yearField.getText());
+                setNullableInt(stmt, 6, yearField.getText());
+
+                setNullableInt(stmt, 7, capacityField.getText());
+                setNullableInt(stmt, 8, capacityField.getText());
+
+                String transmission = transmissionCombo.getSelectedItem().toString();
+                stmt.setString(9, transmission.equals("Any") ? null : transmission);
+                stmt.setString(10, transmission.equals("Any") ? null : transmission);
+
+                setNullableComboID(stmt, 11, typeIDCombo);
+                setNullableComboID(stmt, 12, typeIDCombo);
+
+                setNullableComboID(stmt, 13, fuelTypeCombo);
+                setNullableComboID(stmt, 14, fuelTypeCombo);
+
+                setNullableInt(stmt, 15, minRateField.getText());
+                setNullableInt(stmt, 16, minRateField.getText());
+
+                setNullableInt(stmt, 17, maxRateField.getText());
+                setNullableInt(stmt, 18, maxRateField.getText());
+
+                ResultSet rs = stmt.executeQuery();
+                DefaultTableModel model = (DefaultTableModel) vehicleTable.getModel();
+                model.setRowCount(0);
+
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                            rs.getInt("VehicleID"),
+                            rs.getString("Brand"),
+                            rs.getString("Model"),
+                            rs.getInt("MakeYear"),
+                            rs.getInt("SeatingCapacity"),
+                            rs.getString("TransmissionType"),
+                            rs.getString("TypeName"),
+                            rs.getString("FuelName"),
+                            rs.getInt("Rate")
+                    });
+                }
+
+                if (model.getRowCount() == 0) {
+                    JOptionPane.showMessageDialog(this, "No vehicles found.");
+                }
             }
 
         } catch (SQLException ex) {
@@ -145,21 +244,27 @@ public class VehicleBooking extends JFrame {
         }
     }
 
-    private String getNullable(String text) {
-        return text.trim().isEmpty() ? null : text.trim();
-    }
-
-    private Integer parseInteger(String text) {
-        try {
-            return text.trim().isEmpty() ? null : Integer.parseInt(text.trim());
-        } catch (NumberFormatException e) {
-            return null;
+    private void setNullableInt(PreparedStatement stmt, int index, String text) throws SQLException {
+        if (text.trim().isEmpty()) {
+            stmt.setNull(index, Types.INTEGER);
+        } else {
+            stmt.setInt(index, Integer.parseInt(text.trim()));
         }
     }
 
-    private Integer parseIntegerCombo(JComboBox<String> comboBox) {
+    private void setNullableComboID(PreparedStatement stmt, int index, JComboBox<String> comboBox) throws SQLException {
         String value = comboBox.getSelectedItem().toString();
-        return value.equals("Any") ? null : Integer.parseInt(value);
+        if (value.equals("Any")) {
+            stmt.setNull(index, Types.INTEGER);
+        } else {
+            int id = Integer.parseInt(value.split(" - ")[0]);
+            stmt.setInt(index, id);
+        }
+    }
+
+    private String getNullableCombo(JComboBox<String> comboBox) {
+        String val = comboBox.getSelectedItem().toString();
+        return val.equals("Any") ? null : val;
     }
 
     public static void main(String[] args) {

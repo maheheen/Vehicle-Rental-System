@@ -9,23 +9,18 @@ public class ConnectionClass {
     private static final String URL = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
     private static final String USER = "sa";
     private static final String PASSWORD = "dblab";
-    private static Connection connection;
 
-    // Static method to get the connection
     public static Connection getConnection() {
-        if (connection == null) {
-            try {
-                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-                connection = DriverManager.getConnection(URL, USER, PASSWORD);
-                System.out.println("✅ Connected to SQL Server successfully!");
-            } catch (ClassNotFoundException e) {
-                System.err.println("❌ SQL Server JDBC Driver not found.");
-                e.printStackTrace();
-            } catch (SQLException e) {
-                System.err.println("❌ Connection to SQL Server failed.");
-                e.printStackTrace();
-            }
+        try {
+            Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
+            return DriverManager.getConnection(URL, USER, PASSWORD);
+        } catch (ClassNotFoundException e) {
+            System.err.println("❌ JDBC Driver not found.");
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("❌ Failed to connect to SQL Server.");
+            e.printStackTrace();
         }
-        return connection;
+        return null;
     }
 }
