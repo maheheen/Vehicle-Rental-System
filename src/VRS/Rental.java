@@ -103,7 +103,7 @@ public class Rental extends JFrame implements ActionListener {
     private void loadAvailableVehicles() {
         carIdBox.removeAllItems();
         tableModel.setRowCount(0);
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              ResultSet rs = conn.createStatement().executeQuery(
                      "SELECT VehicleID, Brand, Model FROM Vehicle WHERE Available = 1")) {
             while (rs.next()) {
@@ -118,7 +118,7 @@ public class Rental extends JFrame implements ActionListener {
 
     private void loadCustomerIds() {
         customerIdBox.removeAllItems();
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              ResultSet rs = conn.createStatement().executeQuery("SELECT LoginID FROM Customer")) {
             while (rs.next()) {
                 customerIdBox.addItem(rs.getString("LoginID"));
@@ -131,7 +131,7 @@ public class Rental extends JFrame implements ActionListener {
     private void loadCustomerName() {
         String id = (String) customerIdBox.getSelectedItem();
         if (id == null) return;
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              PreparedStatement pst = conn.prepareStatement(
                      "SELECT FirstName, LastName FROM Customer WHERE LoginID=?")) {
             pst.setString(1, id);
@@ -147,7 +147,7 @@ public class Rental extends JFrame implements ActionListener {
     private void updateAvailabilityStatus() {
         String id = (String) carIdBox.getSelectedItem();
         if (id == null) return;
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              PreparedStatement pst = conn.prepareStatement("SELECT Available FROM Vehicle WHERE VehicleID=?")) {
             pst.setString(1, id);
             ResultSet rs = pst.executeQuery();
@@ -162,7 +162,7 @@ public class Rental extends JFrame implements ActionListener {
     private void updateRentalFee() {
         String id = (String) carIdBox.getSelectedItem();
         if (id == null) return;
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              PreparedStatement pst = conn.prepareStatement("SELECT Rate FROM Vehicle WHERE VehicleID=?")) {
             pst.setString(1, id);
             ResultSet rs = pst.executeQuery();
@@ -175,7 +175,7 @@ public class Rental extends JFrame implements ActionListener {
     }
 
     private int getCustomerIdFromLoginId(String loginId) throws SQLException {
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              PreparedStatement pst = conn.prepareStatement("SELECT CustomerID FROM Customer WHERE LoginID = ?")) {
             pst.setString(1, loginId);
             ResultSet rs = pst.executeQuery();
@@ -188,7 +188,7 @@ public class Rental extends JFrame implements ActionListener {
     }
 
     private String getLoginIdFromCustomerId(int customerId) {
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              PreparedStatement pst = conn.prepareStatement("SELECT LoginID FROM Customer WHERE CustomerID = ?")) {
             pst.setInt(1, customerId);
             ResultSet rs = pst.executeQuery();
@@ -203,7 +203,7 @@ public class Rental extends JFrame implements ActionListener {
 
     private void loadBookingData() {
         bookingModel.setRowCount(0);
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              ResultSet rs = conn.createStatement().executeQuery(
                      "SELECT BookingID, CustomerID, VehicleID, StartDate, ReturnDate, TotalDays, TotalAmount FROM Booking")) {
             while (rs.next()) {
@@ -251,7 +251,7 @@ public class Rental extends JFrame implements ActionListener {
             int totalAmount = (int) (rentalFee * totalDays);
             int actualCustomerId = getCustomerIdFromLoginId(customerLoginId);
 
-            try (Connection conn = new ConnectionClass().con) {
+            try (Connection conn = ConnectionClass.getConnection()) {
                 conn.setAutoCommit(false);
 
                 try (PreparedStatement pst = conn.prepareStatement(

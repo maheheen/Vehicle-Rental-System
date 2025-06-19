@@ -80,7 +80,7 @@ public class AdminPortal extends JFrame implements ActionListener {
         } else if (e.getSource() == AdminManagement) {
             new AdminManagement(roleID).setVisible(true);
         } else if (e.getSource() == btnReturn) {
-            JOptionPane.showMessageDialog(this, "Return section clicked.");
+            new Return().setVisible(true);
         } else if (e.getSource() == btnPayments) {
             new PaymentManagement().setVisible(true); // Open payments page
         } else if (e.getSource() == btnLogout) {

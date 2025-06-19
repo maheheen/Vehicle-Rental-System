@@ -83,14 +83,18 @@ public class CustomerPortal extends JFrame implements ActionListener {
         Object source = e.getSource();
 
         if (source == viewAvailableVehiclesButton) {
-            JOptionPane.showMessageDialog(this, "Displaying available vehicles...");
+            new ViewAvailableVehicles().setVisible(true);
         } else if (source == bookVehicleButton) {
+            this.setVisible(false);
             new VehicleBooking().setVisible(true);
         } else if (source == viewBookingsButton) {
             JOptionPane.showMessageDialog(this, "Showing your bookings...");
         } else if (source == logoutButton) {
-            JOptionPane.showMessageDialog(this, "Logging out...");
-            dispose();
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to logout?", "Confirm Logout", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                this.setVisible(false);
+                new WelcomePage().setVisible(true);
+            }
         }
     }
 

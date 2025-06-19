@@ -65,9 +65,9 @@ public class PaymentManagement extends JFrame {
                 "PaymentID", "CustomerID", "Customer Name", "MaskedCard", "Card Holder", "Expiry", "Amount", "Status", "Date"
         });
 
-        try {
-            ConnectionClass connectionClass = new ConnectionClass();
-            con = connectionClass.con;
+        try(Connection conn = ConnectionClass.getConnection()) {
+//            ConnectionClass connectionClass = new ConnectionClass();
+//            con = connectionClass.con;
             String status = statusFilter.getSelectedItem().toString();
             String query = "SELECT * FROM ViewPaymentsWithCustomerInfo";
             if (!status.equals("All")) {
@@ -119,8 +119,9 @@ public class PaymentManagement extends JFrame {
         if (confirm != JOptionPane.YES_OPTION) return;
 
         try {
-            ConnectionClass connectionClass = new ConnectionClass();
-            con = connectionClass.con;
+//            ConnectionClass connectionClass = new ConnectionClass();
+//            con = connectionClass.con;
+            Connection con = ConnectionClass.getConnection();
             CallableStatement cs = con.prepareCall("{call UpdatePaymentStatus(?, ?)}");
             cs.setInt(1, paymentID);
             cs.setString(2, "Paid");

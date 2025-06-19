@@ -449,8 +449,8 @@ public class CarRegistration extends JFrame implements ActionListener {
             }
 
             try {
-                ConnectionClass connectionClass = new ConnectionClass();
-                Connection conn = connectionClass.con;
+
+                Connection conn = ConnectionClass.getConnection();
 
                 // Check if RegNumber already exists
                 PreparedStatement checkStmt = conn.prepareStatement("SELECT COUNT(*) FROM Vehicle WHERE RegNumber = ?");

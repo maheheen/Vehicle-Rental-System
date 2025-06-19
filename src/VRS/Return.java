@@ -66,7 +66,7 @@ public class Return extends JFrame implements ActionListener {
     }
 
     private void loadBookings() {
-        try (Connection conn = new ConnectionClass().con;
+        try (Connection conn = ConnectionClass.getConnection();
              ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM Booking")) {
             model.setRowCount(0);
             while (rs.next()) {
@@ -93,7 +93,7 @@ public class Return extends JFrame implements ActionListener {
             return;
         }
 
-        try (Connection conn = new ConnectionClass().con) {
+        try (Connection conn = ConnectionClass.getConnection()) {
             PreparedStatement pst = conn.prepareStatement(
                     "SELECT ReturnDate FROM Booking WHERE VehicleID = ? AND CustomerID = ? ORDER BY BookingID DESC");
             pst.setString(1, carId);

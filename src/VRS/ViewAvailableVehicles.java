@@ -42,8 +42,7 @@ public class ViewAvailableVehicles extends JFrame {
     }
 
     private void loadAvailableVehicles() {
-        ConnectionClass connectionClass = new ConnectionClass();
-        Connection conn = connectionClass.con;
+        Connection conn = ConnectionClass.getConnection();
 
         if (conn == null) {
             JOptionPane.showMessageDialog(this, "Database connection failed.");
