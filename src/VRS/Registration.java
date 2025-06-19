@@ -255,28 +255,30 @@ public class Registration extends JFrame implements ActionListener {
                     out.write(buffer, 0, length);
                 }
             }
-                String sql = "{CALL RegisterCustomers(?, ?, ?, ?, ?, ?, ?, ?, ?)}";
-                try (CallableStatement stmt = conn.prepareCall(sql)) {
-                    stmt.setString(1, usernameField.getText());
+            String sql = "{CALL RegisterCustomers(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)}";
+            try (CallableStatement stmt = conn.prepareCall(sql)) {
+                stmt.setString(1, usernameField.getText());
 
-                    String pass = new String(passwordField1.getPassword());
-                    // Hash the password using your PasswordHasher class
-                    String hashedPass = PasswordHasher.hashPassword(pass);
+                String pass = new String(passwordField1.getPassword());
+                String hashedPass = PasswordHasher.hashPassword(pass);
 
-                    stmt.setString(2, hashedPass);
+                stmt.setString(2, hashedPass);
+                stmt.setString(3, firstNameField.getText());
+                stmt.setString(4, lastNameField.getText());
+                stmt.setString(5, EmailField.getText());
+                stmt.setString(6 , phoneNumberField.getText());
+                stmt.setString(7, addressField.getText());
+                stmt.setString(8, drivingLicenseField.getText());
+                stmt.setString(9, CNICField.getText());
+                stmt.setString(10, imagePath); // <-- NEW PARAMETER for CNICImagePath
+                stmt.setInt(11, 1); // RoleID = 1 for customer
 
-                    stmt.setString(3, firstNameField.getText());
-                    stmt.setString(4, lastNameField.getText());
-                    stmt.setString(5, EmailField.getText());
-                    stmt.setString(6 , phoneNumberField.getText());
-                    stmt.setString(7, addressField.getText());
-                    stmt.setString(8, drivingLicenseField.getText());
-                    stmt.setString(9, CNICField.getText());
-                    stmt.execute();
-                    JOptionPane.showMessageDialog(this, "Customer registered successfully!");
-                    dispose();
-                    new CustomerPortal().setVisible(true);
+                stmt.execute();
+                JOptionPane.showMessageDialog(this, "Customer registered successfully!");
+                dispose();
+                new CustomerPortal().setVisible(true);
             }
+
 
         } catch (SQLException | IOException ex) {
             JOptionPane.showMessageDialog(this, "Error saving data: " + ex.getMessage());

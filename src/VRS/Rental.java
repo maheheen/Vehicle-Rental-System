@@ -15,7 +15,7 @@ public class Rental extends JFrame implements ActionListener {
     JLabel availabilityLabel;
     JTable vehicleTable, bookingTable;
     DefaultTableModel tableModel, bookingModel;
-    JButton rentButton, cancelButton;
+    JButton rentButton, cancelButton, backButton;
 
     public Rental() {
         setTitle("Rent Vehicle");
@@ -62,12 +62,18 @@ public class Rental extends JFrame implements ActionListener {
         cancelButton = new JButton("Cancel");
         cancelButton.setBounds(220, 280, 100, 30); add(cancelButton);
 
+        backButton = new JButton("Back");
+        backButton.setBounds(340, 280, 100, 30); add(backButton);
+
         rentButton.addActionListener(this);
         cancelButton.addActionListener(e -> {
-            this.dispose();  // or this.setVisible(false);
+            this.dispose();
             new AdminPortal(2).setVisible(true);
         });
-
+        backButton.addActionListener(e -> {
+            this.dispose();
+            new AdminPortal(2).setVisible(true);
+        });
 
         tableModel = new DefaultTableModel(new String[]{"VehicleID", "Brand", "Model"}, 0);
         vehicleTable = new JTable(tableModel);
