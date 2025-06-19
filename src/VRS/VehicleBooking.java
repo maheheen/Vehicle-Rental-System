@@ -7,10 +7,13 @@ import java.sql.*;
 
 public class VehicleBooking extends JFrame {
 
-    private JTable vehicleTable;
+    public static JTable vehicleTable;
+  //  private JTable vehicleTable;
     private JTextField brandField, modelField, yearField, capacityField, minRateField, maxRateField;
     private JComboBox<String> transmissionCombo, fuelTypeCombo, typeIDCombo;
     private JButton searchButton;
+    private JButton proceedButton;
+
 
     public VehicleBooking() {
         setTitle("Vehicle Filter & Booking");
@@ -62,6 +65,10 @@ public class VehicleBooking extends JFrame {
 
         add(topPanel, BorderLayout.NORTH);
 
+        proceedButton = new JButton("Proceed");
+        proceedButton.addActionListener(e -> openNextPage());
+
+
         // Table
         vehicleTable = new JTable(new DefaultTableModel(new Object[]{
                 "VehicleID", "Brand", "Model", "MakeYear", "SeatingCapacity",
@@ -70,7 +77,29 @@ public class VehicleBooking extends JFrame {
         add(new JScrollPane(vehicleTable), BorderLayout.CENTER);
 
         setVisible(true);
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        bottomPanel.add(proceedButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
     }
+
+    private void openNextPage() {
+        int selectedRow = vehicleTable.getSelectedRow();
+
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select a vehicle to proceed.");
+            return; // Stop here if nothing is selected
+        }
+
+        // Optional: Get vehicle ID or other data from the selected row
+        int vehicleID = (int) vehicleTable.getValueAt(selectedRow, 0); // Assuming 1st column is VehicleID
+
+        // Pass data to next page (can modify constructor to accept vehicleID)
+        new BookingDetails(vehicleID);
+        dispose(); // Close current frame
+    }
+
+
 
     private void filterVehicles() {
         ConnectionClass connectionClass= new ConnectionClass();
