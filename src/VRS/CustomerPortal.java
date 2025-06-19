@@ -82,14 +82,15 @@ public class CustomerPortal extends JFrame implements ActionListener {
         Object source = e.getSource();
 
         if (source == viewAvailableVehiclesButton) {
-            JOptionPane.showMessageDialog(this, "Displaying available vehicles...");
+            this.setVisible(false);
         } else if (source == bookVehicleButton) {
-            JOptionPane.showMessageDialog(this, "Redirecting to booking form...");
+            this.setVisible(false);
+            new VehicleBooking().setVisible(true);
         } else if (source == viewBookingsButton) {
             JOptionPane.showMessageDialog(this, "Showing your bookings...");
         } else if (source == logoutButton) {
-            JOptionPane.showMessageDialog(this, "Logging out...");
-            dispose();
+            this.setVisible(false);
+            new WelcomePage().setVisible(true);
         }
     }
 
