@@ -2,6 +2,8 @@ package VRS;
 
 import javax.swing.*;
 import java.awt.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
@@ -11,10 +13,17 @@ public class BookingDetails extends JFrame {
     private JTextField startDateField, returnDateField;
     private JLabel billLabel;
     private JButton proceedButton;
+    private int customerID;
+    private int vehicleID;
     private int ratePerDay;
     private long totalBill = -1;
+    private LocalDate startDate, returnDate;
+    private long rentalDays;
 
-    public BookingDetails(int vehicleID) {
+    public BookingDetails(int customerID, int vehicleID) {
+        this.customerID = customerID;
+        this.vehicleID = vehicleID;
+
         setTitle("Booking Details");
         setSize(600, 300);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -28,7 +37,7 @@ public class BookingDetails extends JFrame {
         title.setFont(new Font("Segoe UI", Font.BOLD, 20));
         add(title, BorderLayout.NORTH);
 
-        // Center form
+        // Form panel
         JPanel formPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         formPanel.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
@@ -50,17 +59,17 @@ public class BookingDetails extends JFrame {
 
         add(formPanel, BorderLayout.CENTER);
 
-        // Bottom panel with proceed button
+        // Bottom panel
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        proceedButton = new JButton("Proceed to Payment");
+        proceedButton = new JButton("Confirm & Save Booking");
         proceedButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        proceedButton.setEnabled(false); // Only enabled after bill generation
+        proceedButton.setEnabled(false);
         bottomPanel.add(proceedButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Action listeners
+        // Actions
         billButton.addActionListener(e -> generateBill());
-        proceedButton.addActionListener(e -> openPaymentPage(vehicleID, totalBill));
+        proceedButton.addActionListener(e -> saveBookingToDatabase());
 
         setVisible(true);
     }
@@ -69,7 +78,7 @@ public class BookingDetails extends JFrame {
         for (int i = 0; i < VehicleBooking.vehicleTable.getRowCount(); i++) {
             int id = (int) VehicleBooking.vehicleTable.getValueAt(i, 0);
             if (id == vehicleID) {
-                return (int) VehicleBooking.vehicleTable.getValueAt(i, 8);
+                return (int) VehicleBooking.vehicleTable.getValueAt(i, 8); // Rate column
             }
         }
         return 0;
@@ -77,41 +86,56 @@ public class BookingDetails extends JFrame {
 
     private void generateBill() {
         try {
-            String startStr = startDateField.getText().trim();
-            String returnStr = returnDateField.getText().trim();
-
-            LocalDate startDate = LocalDate.parse(startStr);
-            LocalDate returnDate = LocalDate.parse(returnStr);
+            startDate = LocalDate.parse(startDateField.getText().trim());
+            returnDate = LocalDate.parse(returnDateField.getText().trim());
 
             if (returnDate.isBefore(startDate)) {
-                JOptionPane.showMessageDialog(this,
-                        "Return date cannot be before start date.",
-                        "Date Error",
-                        JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Return date cannot be before start date.");
                 return;
             }
 
-            long days = ChronoUnit.DAYS.between(startDate, returnDate) + 1;
-            totalBill = days * ratePerDay;
+            rentalDays = ChronoUnit.DAYS.between(startDate, returnDate) + 1;
+            totalBill = rentalDays * ratePerDay;
 
-            billLabel.setText("Total Bill: PKR " + totalBill + " (" + days + " days × " + ratePerDay + ")");
+            billLabel.setText("Total Bill: PKR " + totalBill + " (" + rentalDays + " days × " + ratePerDay + ")");
             proceedButton.setEnabled(true);
 
-        } catch (DateTimeParseException e) {
+        } catch (DateTimeParseException ex) {
             JOptionPane.showMessageDialog(this,
-                    "Please enter dates in yyyy-MM-dd format.",
+                    "Invalid date format! Please enter date as yyyy-MM-dd.",
                     "Format Error",
-                    JOptionPane.ERROR_MESSAGE);
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this,
-                    "Something went wrong: " + e.getMessage(),
-                    "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void openPaymentPage(int vehicleID, long amount) {
-        new PaymentPage(vehicleID, amount);
-        dispose(); // Close booking window
+    private void saveBookingToDatabase() {
+        Connection conn = ConnectionClass.getConnection();
+        String sql = "INSERT INTO Booking (CustomerID, VehicleID, StartDate, ReturnDate, TotalDays, TotalAmount) VALUES (?, ?, ?, ?, ?, ?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, customerID);
+            stmt.setInt(2, vehicleID);
+            stmt.setDate(3, java.sql.Date.valueOf(startDate));
+            stmt.setDate(4, java.sql.Date.valueOf(returnDate));
+            stmt.setInt(5, (int) rentalDays);
+            stmt.setInt(6, (int) totalBill);
+
+            int rowsInserted = stmt.executeUpdate();
+            if (rowsInserted > 0) {
+                JOptionPane.showMessageDialog(this, "✅ Booking saved successfully!");
+
+                // 👇 Open Payment Page
+                new PaymentPage(customerID, vehicleID, (int) totalBill);
+
+                this.dispose(); // Close BookingDetails window
+
+
+        } else {
+                JOptionPane.showMessageDialog(this, "❌ Booking failed to save.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error saving booking: " + e.getMessage());
+        }
     }
 }

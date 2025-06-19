@@ -5,9 +5,13 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class ConnectionClass {
-    public Connection con;
+    private static Connection con;
 
-    public ConnectionClass() {
+    public static Connection getConnection() {
+        if (con != null) {
+            return con;
+        }
+
         String url = "jdbc:sqlserver://localhost:1433;databaseName=VehicleRentalSystem;encrypt=true;trustServerCertificate=true";
         String user = "sa";
         String password = "dblab";
@@ -23,6 +27,7 @@ public class ConnectionClass {
             System.out.println("Connection failed.");
             e.printStackTrace();
         }
-    }
 
+        return con;
+    }
 }

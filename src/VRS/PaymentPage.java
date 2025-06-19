@@ -5,23 +5,23 @@ import java.awt.*;
 
 public class PaymentPage extends JFrame {
 
-    public PaymentPage(int vehicleID, long amount) {
+    public PaymentPage(int customerID, int vehicleID, int totalBill) {
         setTitle("Payment Page");
-        setSize(400, 200);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setSize(400, 300);
         setLayout(new BorderLayout());
 
-        JLabel info = new JLabel("<html><center>Proceeding to payment for<br><b>Vehicle ID: " + vehicleID +
-                "</b><br>Total Amount: <b>PKR " + amount + "</b></center></html>", SwingConstants.CENTER);
-        info.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        JLabel label = new JLabel("<html><center>Pay your bill: <br><b>PKR " + totalBill + "</b></center></html>", SwingConstants.CENTER);
+        label.setFont(new Font("Arial", Font.BOLD, 20));
+        add(label, BorderLayout.CENTER);
 
-        add(info, BorderLayout.CENTER);
+        JButton payButton = new JButton("Pay Now");
+        payButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(this, "Payment successful!");
+            this.dispose(); // close payment window
+        });
 
-        JButton payBtn = new JButton("Pay Now");
-        payBtn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        add(payBtn, BorderLayout.SOUTH);
-
+        add(payButton, BorderLayout.SOUTH);
+        setLocationRelativeTo(null);
         setVisible(true);
     }
 }
