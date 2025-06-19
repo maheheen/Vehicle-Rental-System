@@ -3,6 +3,7 @@ package VRS;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 
@@ -13,6 +14,8 @@ public class BookingDetails extends JFrame {
     private JButton proceedButton;
     private int ratePerDay;
     private long totalBill = -1;
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public BookingDetails(int vehicleID) {
         setTitle("Booking Details");
@@ -76,18 +79,23 @@ public class BookingDetails extends JFrame {
     }
 
     private void generateBill() {
-        try {
-            String startStr = startDateField.getText().trim();
-            String returnStr = returnDateField.getText().trim();
+        String startStr = startDateField.getText().trim();
+        String returnStr = returnDateField.getText().trim();
 
-            LocalDate startDate = LocalDate.parse(startStr);
-            LocalDate returnDate = LocalDate.parse(returnStr);
+        try {
+            LocalDate startDate = LocalDate.parse(startStr, DATE_FORMATTER);
+            LocalDate returnDate = LocalDate.parse(returnStr, DATE_FORMATTER);
+
+            // Reset background color in case it was red previously
+            startDateField.setBackground(Color.WHITE);
+            returnDateField.setBackground(Color.WHITE);
 
             if (returnDate.isBefore(startDate)) {
                 JOptionPane.showMessageDialog(this,
                         "Return date cannot be before start date.",
                         "Date Error",
                         JOptionPane.ERROR_MESSAGE);
+                returnDateField.setBackground(Color.PINK);
                 return;
             }
 
@@ -98,8 +106,21 @@ public class BookingDetails extends JFrame {
             proceedButton.setEnabled(true);
 
         } catch (DateTimeParseException e) {
+            // Highlight the invalid field(s)
+            if (!isValidDate(startStr)) {
+                startDateField.setBackground(Color.PINK);
+            } else {
+                startDateField.setBackground(Color.WHITE);
+            }
+
+            if (!isValidDate(returnStr)) {
+                returnDateField.setBackground(Color.PINK);
+            } else {
+                returnDateField.setBackground(Color.WHITE);
+            }
+
             JOptionPane.showMessageDialog(this,
-                    "Please enter dates in yyyy-MM-dd format.",
+                    "Please enter valid dates in yyyy-MM-dd format.",
                     "Format Error",
                     JOptionPane.ERROR_MESSAGE);
         } catch (Exception e) {
@@ -107,6 +128,15 @@ public class BookingDetails extends JFrame {
                     "Something went wrong: " + e.getMessage(),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private boolean isValidDate(String input) {
+        try {
+            LocalDate.parse(input, DATE_FORMATTER);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
         }
     }
 
