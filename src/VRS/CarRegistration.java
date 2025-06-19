@@ -17,6 +17,7 @@ public class CarRegistration extends JFrame implements ActionListener {
     JTable carTable;
     DefaultTableModel tableModel;
     JButton addButton, editButton, deleteButton, cancelButton, backButton, updateButton;
+    private Connection conn;
 
     public CarRegistration() {
         setTitle("Car Register");
